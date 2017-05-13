@@ -33,7 +33,8 @@ fn main() {
     cfg.indent = 4;
 
     let projects = Vec::new();
-    let db = Store::new_with_cfg("commando.db", cfg).unwrap();
+    let db = Store::new_with_cfg("commando", cfg).unwrap();
+    
     let f = Preferences {
         active_project: String::from("crowdist"),
         projects: projects
