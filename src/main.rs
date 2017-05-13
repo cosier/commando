@@ -1,3 +1,8 @@
+extern crate cursive;
+
+use cursive::Cursive;
+use cursive::views::{Dialog, TextView};
+
 fn main() {
-    println!("Hello, world!");
+    println!("Commando initialising.");
 }
