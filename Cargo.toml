@@ -4,5 +4,13 @@ version = "0.1.0"
 authors = ["Bailey Cosier <bailey@crowdist.com>"]
 
 [dependencies]
-cursive = "0.5"
+cursive = { git = "https://github.com/gyscos/Cursive" }
+
+jfs = "0.3.0"
+
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
+
+
 
