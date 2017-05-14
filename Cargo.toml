@@ -4,9 +4,10 @@ version = "0.1.0"
 authors = ["Bailey Cosier <bailey@crowdist.com>"]
 
 [dependencies]
-cursive = { git = "https://github.com/gyscos/Cursive" }
+libc = "0.2.22"
 
-jfs = "0.3.0"
+cursive = { git = "https://github.com/gyscos/Cursive" }
+jfs = { path = "./lib/rust-json-file-store" }
 
 serde = "0.9"
 serde_derive = "0.9"
