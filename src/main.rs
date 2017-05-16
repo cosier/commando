@@ -16,5 +16,5 @@ fn app() {
 
 fn main() { app(); }
 
-#[test]
-fn test() { app(); }
+// #[test]
+// fn test() { app(); }

@@ -13,3 +13,5 @@ extern crate clap;
 pub mod app;
 pub mod project;
 pub mod preferences;
+pub mod cli;
+pub mod db;
