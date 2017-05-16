@@ -1,4 +1,5 @@
 use db::Database as DB;
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectData {
@@ -17,7 +18,13 @@ impl ProjectData {
     }
 }
 
-pub fn list() -> Vec<ProjectData> {
+impl fmt::Display for ProjectData {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Project: {} @ {}", self.name, self.barge_root)
+    }
+}
+
+pub fn list() -> Vec<Box<ProjectData>> {
     let projects = DB::list_projects();
     projects
 }

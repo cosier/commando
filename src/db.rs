@@ -31,12 +31,13 @@ impl Database {
 
     }
 
-    pub fn list_projects() -> Vec<ProjectData> {
+    pub fn list_projects() -> Vec<Box<ProjectData>> {
         let map = Database::prefs("commando").projects;
-        let mut vec: Vec<ProjectData> = Vec::new();
+        let mut vec: Vec<Box<ProjectData>> = Vec::new();
 
         for (id, mut project) in &map {
-            vec.push(project.copy());
+            let bx:Box<ProjectData> = Box::new(project.copy());
+            vec.push(bx);
         }
 
         vec
@@ -47,7 +48,7 @@ impl Database {
     }
 
     pub fn conn(name: &str) -> Store {
-        error!("connection requested: {}", name);
+        info!("connection requested: {}", name);
         let mut cfg = jfs::Config::default();
         cfg.pretty = true;
         cfg.single = true;
