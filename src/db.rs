@@ -28,7 +28,6 @@ impl Database {
     }
 
     pub fn remove_project(p: ProjectData) {
-
     }
 
     pub fn list_projects() -> Vec<Box<ProjectData>> {

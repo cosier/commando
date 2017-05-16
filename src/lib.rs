@@ -13,6 +13,7 @@ extern crate jfs;
 extern crate libc;
 extern crate clap;
 
+pub mod views;
 pub mod utils;
 pub mod app;
 pub mod project;

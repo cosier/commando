@@ -25,6 +25,7 @@ impl<'a> App<'a> {
     }
 
     pub fn cli(&self)  {
-        cli::parse();
+        let processor = cli::Processor::new();
+        processor.parse()
     }
 }
