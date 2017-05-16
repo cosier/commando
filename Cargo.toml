@@ -3,8 +3,16 @@ name = "commando"
 version = "0.1.0"
 authors = ["Bailey Cosier <bailey@crowdist.com>"]
 
+[lib]
+name = "commando"
+
 [dependencies]
 libc = "0.2.22"
+log = "0.3"
+env_logger = "0.3"
+
+clap = "*"
+termion = "*"
 
 cursive = { git = "https://github.com/gyscos/Cursive" }
 jfs = { path = "./lib/rust-json-file-store" }
@@ -13,5 +21,5 @@ serde = "0.9"
 serde_derive = "0.9"
 serde_json = "0.9"
 
-
+stainless = "*"
 
