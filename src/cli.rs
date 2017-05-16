@@ -5,8 +5,6 @@ pub fn parse() {
     let matches: ArgMatches = matches();
     let project_id = matches.value_of("project").unwrap_or("none");
     info!("project_id: {}", project_id);
-
-    
 }
 
 fn matches() -> ArgMatches<'static> {
