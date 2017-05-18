@@ -77,3 +77,6 @@ pub fn project_service_logs(project_name: &str, service_name: &str) {
 
 pub fn project_service_env(project_name: &str, service_name: &str) {
 }
+
+pub fn project_service_list(project_name: &str) {
+}
