@@ -4,37 +4,28 @@ use jfs;
 use jfs::Store;
 
 use std::path::{PathBuf};
-use std::fs::{File};
-use std::io;
-use std::io::prelude::*;
 use std::collections::{HashMap};
 use std;
 
 use preferences::Preferences;
 use project::ProjectData;
 
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref DB_NAME: &'static str = "commando";
-}
-
 impl Database {
 
-    pub fn project_by_id(id: &str) {
-    }
+    // pub fn project_by_id(id: &str) {
+    // }
 
-    pub fn save_project(p: ProjectData) {
-    }
+    // pub fn save_project(p: ProjectData) {
+    // }
 
-    pub fn remove_project(p: ProjectData) {
-    }
+    // pub fn remove_project(p: ProjectData) {
+    // }
 
     pub fn list_projects() -> Vec<Box<ProjectData>> {
         let map = Database::prefs("commando").projects;
         let mut vec: Vec<Box<ProjectData>> = Vec::new();
 
-        for (id, mut project) in &map {
+        for (_, project) in &map {
             let bx:Box<ProjectData> = Box::new(project.copy());
             vec.push(bx);
         }
@@ -47,13 +38,11 @@ impl Database {
     }
 
     pub fn conn(name: &str) -> Store {
-        info!("connection requested: {}", name);
         let mut cfg = jfs::Config::default();
         cfg.pretty = true;
         cfg.single = true;
         cfg.indent = 4;
 
-        let name = "commando";
         let store = Store::new_with_cfg(name, cfg).unwrap();
         store
     }

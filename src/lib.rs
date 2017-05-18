@@ -6,6 +6,7 @@
 #[macro_use] extern crate lazy_static;
 
 extern crate termion;
+extern crate slug;
 
 extern crate env_logger;
 extern crate cursive;

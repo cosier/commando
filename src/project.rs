@@ -1,5 +1,9 @@
 use db::Database as DB;
+
+use std;
 use std::fmt;
+use std::env::current_dir;
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectData {
@@ -20,8 +24,11 @@ impl ProjectData {
 
 impl fmt::Display for ProjectData {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Project: {} @ {}", self.name, self.barge_root)
+        write!(f, "[project:{}:{}]", self.name, self.barge_root)
     }
+}
+
+fn assert_project_exists(name: &str) {
 }
 
 pub fn list() -> Vec<Box<ProjectData>> {
@@ -29,17 +36,44 @@ pub fn list() -> Vec<Box<ProjectData>> {
     projects
 }
 
-pub fn active_id() -> &'static str {
-    return "123";
+pub fn active_project() -> Option<String> {
+    DB::prefs("commando").active_project
 }
 
-pub fn create() -> bool {
-    return false
+pub fn create_project(name: &str, path: PathBuf) {
+    debug!("creating project: {}", name);
+    debug!("destination: {}", path.to_str().unwrap());
 }
 
-pub fn check(id: &str) -> bool {
-    return false
+pub fn promote_project(name: &str) {
 }
 
-pub fn summary() {
+pub fn purge_project(name: &str) {
+}
+
+pub fn info_project(name: &str) {
+}
+
+pub fn setup_project(name: &str) {
+}
+
+pub fn project_service_enable(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_disable(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_start(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_stop(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_restart(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_logs(project_name: &str, service_name: &str) {
+}
+
+pub fn project_service_env(project_name: &str, service_name: &str) {
 }

@@ -3,7 +3,6 @@ use termion;
 use termion::color;
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::IntoRawMode;
 
 pub fn green() -> termion::color::Fg<termion::color::Rgb> {
     color::Fg(color::Rgb(50, 205, 50))

@@ -1,10 +1,8 @@
 // use cursive::Cursive;
 // use cursive::views::{Dialog, TextView};
 
-use log::LogLevel;
-use project::ProjectData;
-use preferences::Preferences;
-use db::Database;
+use db::{Database};
+use preferences::{Preferences};
 use cli;
 
 pub struct App<'a> {
