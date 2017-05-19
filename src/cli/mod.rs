@@ -9,14 +9,15 @@ use views::{display_as_list};
 pub const NO_PROJECT_SELECTED: &str = "cli_no_project_selected";
 
 
-mod services;
-mod projects;
-mod tree;
+pub mod services;
+pub mod projects;
+pub mod tree;
 
 use project::{active_project};
 use cli::tree::build_tree as tree;
 use cli::services::{parse_services};
 use cli::projects::{parse_projects};
+use utils::{print_help};
 
 pub struct Processor {}
 
@@ -37,6 +38,6 @@ impl Processor {
         // Services management
         parse_services(project_id, &root);
 
-        tree().print_help();
+        print_help();
     }
 }

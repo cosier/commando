@@ -40,43 +40,56 @@ pub fn active_project() -> Option<String> {
     DB::prefs("commando").active_project
 }
 
-pub fn create_project(name: &str, path: PathBuf) {
-    debug!("creating project: {}", name);
-    debug!("destination: {}", path.to_str().unwrap());
+pub fn create_project(name: &str, path: PathBuf) -> bool {
+    // info!("creating project: {}", name);
+    // info!("destination: {}", path.to_str().unwrap());
+    true
 }
 
-pub fn promote_project(name: &str) {
+pub fn promote_project(name: &str) -> bool {
+    true
 }
 
-pub fn purge_project(name: &str) {
+pub fn purge_project(name: &str) -> bool {
+    true
 }
 
-pub fn info_project(name: &str) {
+pub fn info_project(name: &str) -> bool{
+    true
 }
 
-pub fn setup_project(name: &str) {
+pub fn setup_project(name: &str) -> bool{
+    true
 }
 
-pub fn project_service_enable(project_name: &str, service_name: &str) {
+pub fn project_service_enable(project_name: &str, service_name: &str) -> bool{
+    true
 }
 
-pub fn project_service_disable(project_name: &str, service_name: &str) {
+pub fn project_service_disable(project_name: &str, service_name: &str) -> bool {
+    true
 }
 
-pub fn project_service_start(project_name: &str, service_name: &str) {
+pub fn project_service_start(project_name: &str, service_name: &str) -> bool{
+    true
 }
 
-pub fn project_service_stop(project_name: &str, service_name: &str) {
+pub fn project_service_stop(project_name: &str, service_name: &str) -> bool {
+    true
 }
 
-pub fn project_service_restart(project_name: &str, service_name: &str) {
+pub fn project_service_restart(project_name: &str, service_name: &str) -> bool {
+    true
 }
 
-pub fn project_service_logs(project_name: &str, service_name: &str) {
+pub fn project_service_logs(project_name: &str, service_name: &str) -> bool {
+    true
 }
 
-pub fn project_service_env(project_name: &str, service_name: &str) {
+pub fn project_service_env(project_name: &str, service_name: &str) -> bool {
+    true
 }
 
-pub fn project_service_list(project_name: &str) {
+pub fn project_service_list(project_name: &str) -> bool {
+    true
 }

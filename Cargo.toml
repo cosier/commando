@@ -15,7 +15,8 @@ lazy_static = "0.2"
 git2 = "*"
 slug = "0.1.2"
 
-clap = "*"
+# clap = "*"
+clap = { path = "./lib/clap-rs" }
 termion = "*"
 
 cursive = { git = "https://github.com/gyscos/Cursive" }

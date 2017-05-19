@@ -4,3 +4,6 @@
 [submodule "lib/rust-json-file-store"]
 	path = lib/rust-json-file-store
 	url = https://github.com/cosier/rust-json-file-store
+[submodule "lib/clap-rs"]
+	path = lib/clap-rs
+	url = https://github.com/kbknapp/clap-rs.git

@@ -1,6 +1,6 @@
 
 use clap::{App, Arg, SubCommand, ArgMatches};
-
+use utils::{print_help};
 
 pub fn build_tree<'a>() -> App<'a,'a> {
     let app = App::new("commando")
@@ -13,11 +13,11 @@ pub fn build_tree<'a>() -> App<'a,'a> {
     tree
         .projects()
         .services()
-        .deploy()
-        .config()
-        .monitor()
-        .logs()
-        .gui()
+        // .deploy()
+        // .config()
+        // .monitor()
+        // .logs()
+        // .gui()
         .app
 }
 
