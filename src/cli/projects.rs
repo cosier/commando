@@ -18,8 +18,6 @@ use slug;
 
 pub fn parse_projects(project_id: &str, root: &ArgMatches) {
     if let Some(matches) = root.subcommand_matches("projects") {
-        tree().print_help();
-
         // Create a new project
         match matches.occurrences_of("create") {
             1  => {
@@ -71,5 +69,7 @@ pub fn parse_projects(project_id: &str, root: &ArgMatches) {
             1  => setup_project(matches.value_of("setup").unwrap()),
             _  => ()
         }
+
+        tree().print_help();
     }
 }

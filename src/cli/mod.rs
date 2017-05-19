@@ -36,5 +36,7 @@ impl Processor {
 
         // Services management
         parse_services(project_id, &root);
+
+        tree().print_help();
     }
 }

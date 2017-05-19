@@ -21,8 +21,6 @@ use cli::{NO_PROJECT_SELECTED};
 
 pub fn parse_services(project_id: &str, root: &ArgMatches) {
     if let Some(matches) = root.subcommand_matches("services") {
-
-        tree().print_help();
         // Check for no active project detected, and bail if necessary.
         if project_id == NO_PROJECT_SELECTED {
             let opt: String = active_project().unwrap_or(NO_PROJECT_SELECTED.to_string());
@@ -94,5 +92,7 @@ pub fn parse_services(project_id: &str, root: &ArgMatches) {
             _ => ()
         }
 
+
+        tree().print_help();
     }
 }
