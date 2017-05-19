@@ -4,6 +4,7 @@
 use db::{Database};
 use preferences::{Preferences};
 use cli;
+use clap;
 
 pub struct App<'a> {
     name: &'a str,
