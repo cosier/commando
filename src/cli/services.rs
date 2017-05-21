@@ -14,12 +14,13 @@ use project::{
     project_service_list
 };
 
-use utils::{make_absolute, exit, if_occurred};
+use utils::{make_absolute, exit, if_occurred, print_help};
 use cli::tree::build_tree as tree;
 use cli::{NO_PROJECT_SELECTED};
 
 pub fn parse_services(project_id: &str, root: &ArgMatches) {
     if let Some(matches) = root.subcommand_matches("services") {
+
         // Check for no active project detected, and bail if necessary.
         if project_id == NO_PROJECT_SELECTED {
             let opt: String = active_project().unwrap_or(NO_PROJECT_SELECTED.to_string());
@@ -67,6 +68,6 @@ pub fn parse_services(project_id: &str, root: &ArgMatches) {
             project_service_list(project_id)
         });
 
-        tree().print_help();
+        print_help();
     }
 }
