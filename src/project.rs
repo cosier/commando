@@ -5,6 +5,8 @@ use std::fmt;
 use std::env::current_dir;
 use std::path::PathBuf;
 
+use utils::{exit, check_path_exists};
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectData {
     pub barge_root: String,
@@ -40,9 +42,21 @@ pub fn active_project() -> Option<String> {
     DB::prefs("commando").active_project
 }
 
+/// Creates a Project model definition and directory structure
 pub fn create_project(name: &str, path: PathBuf) -> bool {
-    // info!("creating project: {}", name);
-    // info!("destination: {}", path.to_str().unwrap());
+
+    if check_path_exists(&path) {
+        println!("Path Error: Found existing directory:\n{}",
+                 path.to_str().unwrap());
+        exit();
+    }
+
+    if check_project_exists(name) {
+        println!("Existing Project Error: Cannot create project with name:\n{}",
+                 path.to_str().unwrap());
+        exit();
+    }
+
     true
 }
 
@@ -62,34 +76,9 @@ pub fn setup_project(name: &str) -> bool{
     true
 }
 
-pub fn project_service_enable(project_name: &str, service_name: &str) -> bool{
-    true
-}
+/////////////////////////////////////////////////
+// Private
 
-pub fn project_service_disable(project_name: &str, service_name: &str) -> bool {
-    true
-}
-
-pub fn project_service_start(project_name: &str, service_name: &str) -> bool{
-    true
-}
-
-pub fn project_service_stop(project_name: &str, service_name: &str) -> bool {
-    true
-}
-
-pub fn project_service_restart(project_name: &str, service_name: &str) -> bool {
-    true
-}
-
-pub fn project_service_logs(project_name: &str, service_name: &str) -> bool {
-    true
-}
-
-pub fn project_service_env(project_name: &str, service_name: &str) -> bool {
-    true
-}
-
-pub fn project_service_list(project_name: &str) -> bool {
-    true
+fn check_project_exists(name: &str) -> bool {
+   false
 }

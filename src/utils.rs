@@ -1,4 +1,5 @@
 use std;
+use std::path::PathBuf;
 
 use termion;
 use termion::color;
@@ -49,4 +50,8 @@ pub fn if_occurred<F>(name: &str, matches: &ArgMatches, func: F) -> bool where F
         0 => { false },
         _ => { false }
     }
+}
+
+pub fn check_path_exists(path: &PathBuf) -> bool {
+    return false;
 }
