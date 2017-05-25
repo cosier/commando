@@ -10,6 +10,12 @@ use std;
 use preferences::Preferences;
 use project::ProjectData;
 
+pub const DEFAULT_CON: &str = "commando.db";
+
+pub fn preferences() -> Preferences {
+    Database::preferences(&mut Database::conn(DEFAULT_CON))
+}
+
 impl Database {
 
     // pub fn project_by_id(id: &str) {
@@ -22,7 +28,7 @@ impl Database {
     // }
 
     pub fn list_projects() -> Vec<Box<ProjectData>> {
-        let map = Database::prefs("commando").projects;
+        let map = Database::prefs().projects;
         let mut vec: Vec<Box<ProjectData>> = Vec::new();
 
         for (_, project) in &map {
@@ -33,8 +39,8 @@ impl Database {
         vec
     }
 
-    pub fn prefs(name: &str) -> Preferences {
-        return Database::preferences(name, &mut Database::conn(name));
+    pub fn prefs() -> Preferences {
+        Database::preferences(&mut Database::conn(DEFAULT_CON))
     }
 
     pub fn conn(name: &str) -> Store {
@@ -47,14 +53,14 @@ impl Database {
         store
     }
 
-    fn preferences(name: &str, db: &mut Store) -> Preferences {
+    fn preferences(db: &mut Store) -> Preferences {
         let mut db_file = String::from(
             std::env::home_dir().unwrap().to_owned().to_str().unwrap());
 
-        db_file.push_str(&format!("/.{}.json", name)[..]);
+        db_file.push_str(&format!("/.{}.json", DEFAULT_CON)[..]);
         db.set_path(PathBuf::from(&db_file[..]));
 
-        return match db.get::<Preferences>(name) {
+        match db.get::<Preferences>(DEFAULT_CON) {
             Ok(d) => d,
             Err(e) => {
                 println!("Preferences: Not loaded from disk - {}", e);
@@ -63,9 +69,9 @@ impl Database {
                     projects: HashMap::new()
                 };
 
-                db.save_with_id(&prefs, name).unwrap();
-                return prefs
+                db.save_with_id(&prefs, DEFAULT_CON).unwrap();
+                prefs
             }
-        };
+        }
     }
 }

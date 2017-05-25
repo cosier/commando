@@ -15,7 +15,6 @@ pub fn service_start(project_name: &str, service_name: &str) -> bool{
 pub fn service_stop(project_name: &str, service_name: &str) -> bool {
     true
 }
-
 pub fn service_restart(project_name: &str, service_name: &str) -> bool {
     true
 }

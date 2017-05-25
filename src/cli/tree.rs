@@ -11,6 +11,7 @@ pub fn build_tree<'a>() -> App<'a,'a> {
     let tree = Tree { app: app };
 
     tree
+        .core()
         .projects()
         .services()
         // .deploy()
@@ -26,6 +27,37 @@ pub struct Tree<'a> {
 }
 
 impl<'c> Tree<'c> {
+
+    fn core(self) -> Self {
+        Tree {
+            app: self.app
+                .arg(Arg::with_name("barge-root")
+                     .long("barge-root")
+                     .help("Set barge root for installation")
+                     .value_name("BARGE_ROOT")
+                     .takes_value(true))
+
+                .arg(Arg::with_name("app-env")
+                     .short("e")
+                     .long("app-environment")
+                     .help("Environment for service containers, and applications.")
+                     .value_name("APP_ENV")
+                     .takes_value(true))
+
+                .arg(Arg::with_name("host-env")
+                     .long("host-env")
+                     .help("Environment for the host machine")
+                     .value_name("HOST_ENV")
+                     .takes_value(true))
+
+                .arg(Arg::with_name("vault")
+                     .long("vault")
+                     .help("Set the vault type to be used")
+                     .value_name("VAULT")
+                     .takes_value(true))
+        }
+
+    }
 
     fn gui(self) -> Self {
         Tree {
@@ -58,12 +90,6 @@ impl<'c> Tree<'c> {
                                  .long("create")
                                  .help("Create a new project")
                                  .value_name("PROJECT_NAME")
-                                 .takes_value(true))
-
-                            .arg(Arg::with_name("barge-root")
-                                 .long("barge-root")
-                                 .help("Set barge root for installation")
-                                 .value_name("BARGE_ROOT")
                                  .takes_value(true))
 
                             .arg(Arg::with_name("promote")

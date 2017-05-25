@@ -42,6 +42,10 @@ pub fn make_absolute(path: &str) -> String {
     }
 }
 
+pub fn path_with_subpath(root: &PathBuf, subdir: &str) -> String {
+    format!("{}/{}", root.to_str().unwrap(), subdir)
+}
+
 pub fn if_occurred<F>(name: &str, matches: &ArgMatches, func: F) -> bool where F: Fn() -> bool {
     match matches.occurrences_of(name) {
         1 => {
