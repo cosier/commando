@@ -14,16 +14,20 @@ use project::{active_project};
 
 use utils::{make_absolute, if_occurred, print_help};
 
+#[derive(Clone)]
 pub enum HostEnv {
     Cluster,
     Metal
 }
 
+#[derive(Clone)]
 pub enum AppEnv {
     Production,
     Development
 }
 
+
+#[derive(Clone)]
 pub enum Vault {
     Developer,
     Admin
@@ -31,11 +35,12 @@ pub enum Vault {
 
 impl fmt::Display for Vault {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        vault_name(*self);
+        vault_name(self);
         Ok(())
     }
 }
 
+#[derive(Clone)]
 pub struct Environment {
     pub vault: Vault,
     pub root:  PathBuf,
@@ -44,13 +49,15 @@ pub struct Environment {
 }
 
 #[derive(Clone)]
-struct EnvironmentSingleton {
-    inner: Arc<Mutex<Environment>>,
+pub struct EnvironmentSingleton {
+    pub inner: Arc<Mutex<Environment>>,
 }
 
 // Initialize it to a null value
 static mut SINGLETON: *const EnvironmentSingleton = 0 as *const EnvironmentSingleton;
 static ONCE: Once = ONCE_INIT;
+
+use project::{ProjectData};
 
 pub fn initialize_environment(m: &ArgMatches) {
 
@@ -59,7 +66,12 @@ pub fn initialize_environment(m: &ArgMatches) {
         Some(path) => PathBuf::from(make_absolute(path)),
         None => {
             let prefs = preferences();
-            std::env::current_dir().unwrap()
+            if let Some(active_project) = prefs.active_project {
+                let barge_root = prefs.projects.get(&active_project).unwrap().barge_root.clone();
+                PathBuf::from(barge_root)
+            } else {
+                std::env::current_dir().unwrap()
+            }
         }
     };
 
@@ -113,16 +125,14 @@ pub fn singleton() -> EnvironmentSingleton {
 }
 
 impl Environment {
-    pub fn root_str<'a>(&self) -> &'a str{
-        let r = self.root.clone().to_str();
-        match r {
-            Some(str) => { str },
-            None => { panic!("Could not convert barge_root to &str") }
-        }
+    pub fn root_str(&self) -> &str {
+        self.root.to_str().unwrap()
     }
 
     pub fn global() -> Environment {
-        *singleton().inner.lock().unwrap()
+        let inner : &Arc<Mutex<Environment>> = &singleton().inner;
+        let copy = inner.lock().unwrap().clone();
+        copy
     }
 }
 
@@ -130,9 +140,9 @@ impl Environment {
 /////////////////////////////////////////////////
 // Private
 
-fn vault_name<'a>(v: Vault) -> &'a str {
+fn vault_name<'a>(v: &Vault) -> &'a str {
     match v {
-        Developer => "developer",
-        Admin => "admin"
+        &Vault::Developer => "developer",
+        &Vault::Admin => "admin"
     }
 }

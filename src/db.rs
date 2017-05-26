@@ -18,15 +18,6 @@ pub fn preferences() -> Preferences {
 
 impl Database {
 
-    // pub fn project_by_id(id: &str) {
-    // }
-
-    // pub fn save_project(p: ProjectData) {
-    // }
-
-    // pub fn remove_project(p: ProjectData) {
-    // }
-
     pub fn list_projects() -> Vec<Box<ProjectData>> {
         let map = Database::prefs().projects;
         let mut vec: Vec<Box<ProjectData>> = Vec::new();

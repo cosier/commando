@@ -1,25 +1,29 @@
 use std::path::PathBuf;
 use environment::{Environment};
 
-pub struct Repository<'a> {
-    pub path: &'a str,
-    pub git: &'a str
+pub struct Repository {
+    pub path: String,
+    pub git: String
 }
 
-impl<'a> Repository<'a> {
+impl Repository {
+    pub fn new(path: &str, git: &str) -> Repository {
+        Repository {
+            path: path.to_string(),
+            git: git.to_string()
+        }
+    }
 }
 
-pub fn attach_vault<'a>(env: &Environment) -> Repository<'a> {
-    let barge_root = env.root_str();
-
+pub fn attach_vault(env: &Environment) -> Repository {
+    let barge_root = env.root_str().to_string();
     new_repo(
-        barge_root,
-        &format!("{}/vault/{}", barge_root, env.vault)[..]
-    )
+        &barge_root,
+        &format!("{}/vault/{}", barge_root, env.vault))
 }
 
-pub fn service_repositories<'a>(env: &Environment) -> Vec<Repository<'a>> {
-    let repos: Vec<Repository> = Vec::new();
+pub fn service_repositories(env: &Environment) -> Vec<Repository> {
+    let mut repos: Vec<Repository> = Vec::new();
     let services = ["core", "doorman", "redis", "client"];
 
     for service in services.into_iter() {
@@ -29,17 +33,18 @@ pub fn service_repositories<'a>(env: &Environment) -> Vec<Repository<'a>> {
     repos
 }
 
-pub fn new_repo<'a>(path: &'a str, git: &'a str) -> Repository<'a> {
-    Repository { path: path, git: git }
+pub fn new_repo(path: &String, git: &String) -> Repository {
+    Repository::new(&path[..], &git[..])
 }
 
 
 /////////////////////////////////////////////////
 // Private
 
-fn new_service_repo<'a>(root: &PathBuf, name: &str) -> Repository<'a> {
-    new_repo(
-        &format!("{}/services/{}", root.to_str().unwrap(), name)[..],
-        &format!("crowdist/{}", name)[..]
-    )
+fn new_service_repo(root: &PathBuf, name: &str) -> Repository {
+    let root_str = root.to_str().unwrap();
+    let service_dir = format!("{}/services/{}", root_str, &name.clone());
+    let repo_addr = format!("crowdist/{}", &name.clone());
+
+    new_repo(&service_dir, &repo_addr)
 }

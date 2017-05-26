@@ -106,9 +106,9 @@ fn initialize_barge(env: &Environment) -> bool {
     ];
 
     let mut repositories = vec![
-        Repository { path: "lib/bash",    git: "crowdist/libbash" },
-        Repository { path: "lib/lua",     git: "crowdist/liblua" },
-        Repository { path: "system/os",   git: "crowdist/os" },
+        Repository::new("lib/bash", "crowdist/libbash"),
+        Repository::new("lib/lua", "crowdist/liblua"),
+        Repository::new("system/os", "crowdist/os"),
         attach_vault(env),
     ];
 
