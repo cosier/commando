@@ -9,12 +9,22 @@ use termion::input::TermRead;
 use clap::{ArgMatches};
 use cli::tree::{build_tree as tree};
 
+pub mod errors;
+
 pub fn green() -> termion::color::Fg<termion::color::Rgb> {
     color::Fg(color::Rgb(50, 205, 50))
 }
 
 pub fn red() -> termion::color::Fg<termion::color::Rgb> {
     color::Fg(color::Rgb(255, 0, 0))
+}
+
+pub fn print_red(input: String) {
+    println!("{}{}{}", red(), &input[..], reset());
+}
+
+pub fn print_green(input: String) {
+    println!("{}{}{}", green(), &input[..], reset());
 }
 
 pub fn reset() -> termion::style::Reset {
@@ -32,12 +42,34 @@ pub fn print_help() {
 }
 
 pub fn make_absolute(path: &str) -> String {
-    if path.find('/').unwrap() == 0 {
+    let r = path.find('/');
+    let indexed = match r {
+        Some(n) => true,
+        None => false
+    };
+
+    if indexed {
         debug!("detected absolute path: {}", path);
         return path.to_string();
     } else {
         let current = std::env::current_dir().unwrap();
         let str : String = format!("{}/{}", current.to_str().unwrap(), path);
+        return str;
+    }
+}
+
+pub fn make_absolute_from_root(path: &str, root: &str) -> String {
+    let r = path.find('/');
+    let indexed = match r {
+        Some(n) => true,
+        None => false
+    };
+
+    if indexed {
+        debug!("detected absolute path: {}", path);
+        return path.to_string();
+    } else {
+        let str : String = format!("{}/{}", root, path);
         return str;
     }
 }

@@ -5,10 +5,10 @@ use std::fmt;
 use std::env::current_dir;
 use std::path::PathBuf;
 use std::fs::{create_dir};
-use utils::{exit, check_path_exists};
+use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
 use repository::{Repository, new_repo, attach_vault, service_repositories};
 use environment::{Environment};
-
+use git2::{Repository as GitRepository};
 use db::{preferences};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -94,7 +94,6 @@ fn create_barge(env: &Environment) -> bool {
     create_folder(&env.root, None)
 }
 
-
 /// Checks sub directories for code repository setup
 fn initialize_barge(env: &Environment) -> bool {
 
@@ -116,15 +115,50 @@ fn initialize_barge(env: &Environment) -> bool {
         repositories.push(service);
     }
 
+    let barge_root = &env.root.to_str().unwrap();
+    println!("Barge initialization @ \n{}\n", &barge_root);
+
     for p in paths.into_iter() {
+
         if !create_folder(&env.root, Some(p)) {
-            return false
+            exit();
+        } else {
+            let mut success = false;
+            let root = &env.root.to_str().unwrap();
+            let abs_path = make_absolute_from_root(p, root);
+            let mut msgs = Vec::new();
+
+            for repo in &repositories {
+                if repo.path[..].contains(&abs_path) {
+                    msgs.push(format!("  -  git: {}", &repo.git));
+                    success = true;
+
+                    println!("Attempting to clone git repo: {}", &repo.git);
+                    let clone = match GitRepository::clone(&repo.git, &repo.path) {
+                        Ok(r) => {
+                            msgs.push(format!(" -  cloned: {:?}", r.state()));
+                            r
+                        },
+                        Err(e) => panic!("failed to clone: {}", e),
+                    };
+
+                }
+            }
+
+            if success {
+                println!("\n‣ {} - ✓", p);
+            } else {
+                print_red(format!("‣ {} - ✗", p));
+            }
+
+            for msg in msgs {
+                println!("{}", msg);
+            }
         }
     }
 
-    for repo in repositories {
-    }
 
+    print_green("\nBarge project creation done.\n".to_string());
     true
 }
 
@@ -148,9 +182,10 @@ fn create_folder(root: &PathBuf, subpath: Option<&str>) -> bool {
     match create_dir(path.clone()) {
         Ok(_) => true,
         Err(e) => {
-            error!("Could not create directory: {} because {}",
+            error!("Could not create directory: {}\n because {}",
                    path.to_str().unwrap(),
                    e);
+            exit();
             false
         }
     }

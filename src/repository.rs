@@ -2,15 +2,31 @@ use std::path::PathBuf;
 use environment::{Environment};
 
 pub struct Repository {
+    pub name: String,
     pub path: String,
     pub git: String
 }
 
+const DEFAULT_REPO_BASE: &'static str = "git@github.com";
+
 impl Repository {
     pub fn new(path: &str, git: &str) -> Repository {
+        let env = Environment::global();
+
+        let full_path = format!("{}/{}", env.root.to_str().unwrap(), path);
+        let name = path.to_string();
+
+        let git_full = match path.find('@') {
+            Some(_) => path.to_string(),
+            None => {
+                format!("{}:{}", DEFAULT_REPO_BASE, path)
+            }
+        };
+
         Repository {
-            path: path.to_string(),
-            git: git.to_string()
+            name: name,
+            path: full_path,
+            git: git_full,
         }
     }
 }

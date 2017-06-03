@@ -10,7 +10,7 @@ use std;
 use preferences::Preferences;
 use project::ProjectData;
 
-pub const DEFAULT_CON: &str = "commando.db";
+pub const DEFAULT_CON: &str = "commando";
 
 pub fn preferences() -> Preferences {
     Database::preferences(&mut Database::conn(DEFAULT_CON))
@@ -54,7 +54,8 @@ impl Database {
         match db.get::<Preferences>(DEFAULT_CON) {
             Ok(d) => d,
             Err(e) => {
-                println!("Preferences: Not loaded from disk - {}", e);
+                debug!("Not loaded from disk:\n New particle created \n{}\n", e);
+
                 let prefs = Preferences {
                     active_project: None,
                     projects: HashMap::new()
