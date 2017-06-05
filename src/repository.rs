@@ -7,7 +7,7 @@ pub struct Repository {
     pub git: String
 }
 
-const DEFAULT_REPO_BASE: &'static str = "git@github.com";
+const DEFAULT_REPO_BASE: &'static str = "git@github.com:";
 
 impl Repository {
     pub fn new(path: &str, git: &str) -> Repository {
@@ -19,7 +19,7 @@ impl Repository {
         let git_full = match path.find('@') {
             Some(_) => path.to_string(),
             None => {
-                format!("{}:{}", DEFAULT_REPO_BASE, path)
+                format!("{}{}", DEFAULT_REPO_BASE, git)
             }
         };
 

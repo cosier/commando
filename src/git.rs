@@ -1,73 +1,118 @@
-use git2;
-use std::result::{Result};
-use std::error::Error;
-use utils::errors::{CommandoResult};
+use std::cell::{RefCell};
+use std::path::PathBuf;
+use std::fs;
 
-pub fn with_authentication<T, F>(url: &str, cfg: &git2::Config, mut f: F)
-                             -> CommandoResult<T>
-    where F: FnMut(&mut git2::Credentials) -> CommandoResult<T>
-{
-    // Prepare the authentication callbacks.
-    //
-    // We check the `allowed` types of credentials, and we try to do as much as
-    // possible based on that:
-    //
-    // * Prioritize SSH keys from the local ssh agent as they're likely the most
-    //   reliable. The username here is prioritized from the credential
-    //   callback, then from whatever is configured in git itself, and finally
-    //   we fall back to the generic user of `git`.
-    //
-    // * If a username/password is allowed, then we fallback to git2-rs's
-    //   implementation of the credential helper. This is what is configured
-    //   with `credential.helper` in git, and is the interface for the OSX
-    //   keychain, for example.
-    //
-    // * After the above two have failed, we just kinda grapple attempting to
-    //   return *something*.
-    let mut cred_helper = git2::CredentialHelper::new(url);
-    cred_helper.config(cfg);
-    let mut cred_error = false;
-    let ret = f(&mut |url, username, allowed| {
-        let creds = if allowed.contains(git2::SSH_KEY) {
-            let user = username.map(|s| s.to_string())
-                .or_else(|| cred_helper.username.clone())
-                .unwrap_or("git".to_string());
-            git2::Cred::ssh_key_from_agent(user.as_slice())
-        } else if allowed.contains(git2::USER_PASS_PLAINTEXT) {
-            git2::Cred::credential_helper(cfg, url, username)
-        } else if allowed.contains(git2::DEFAULT) {
-            git2::Cred::default()
-        } else {
-            Err(git2::Error::from_str("no authentication available"))
-        };
-        cred_error = creds.is_err();
-        creds
-    });
-    if cred_error {
-        ret.unwrap().chain_error(|| {
-            human("Failed to authenticate when downloading repository")
-        })
+use git2;
+use git2::build::{RepoBuilder, CheckoutBuilder};
+use git2::{RemoteCallbacks, Progress, FetchOptions};
+use std::env;
+
+use utils::errors::{CommandoResult, CommandoError, CommandoResultExt};
+
+struct State {
+    progress: Option<Progress<'static>>,
+    total: usize,
+    current: usize,
+    path: Option<PathBuf>,
+    newline: bool,
+}
+
+fn print(state: &mut State) {
+    let stats = state.progress.as_ref().unwrap();
+    let network_pct = (100 * stats.received_objects()) / stats.total_objects();
+    let index_pct = (100 * stats.indexed_objects()) / stats.total_objects();
+    let co_pct = if state.total > 0 {
+        (100 * state.current) / state.total
     } else {
-        ret
+        0
+    };
+    let kbytes = stats.received_bytes() / 1024;
+    if stats.received_objects() == stats.total_objects() {
+        if !state.newline {
+            println!("");
+            state.newline = true;
+        }
+        print!("Resolving deltas {}/{}\r", stats.indexed_deltas(),
+               stats.total_deltas());
+    } else {
+        print!("net {:3}% ({:4} kb, {:5}/{:5})  /  idx {:3}% ({:5}/{:5})  \
+                /  chk {:3}% ({:4}/{:4}) {}\r",
+               network_pct, kbytes, stats.received_objects(),
+               stats.total_objects(),
+               index_pct, stats.indexed_objects(), stats.total_objects(),
+               co_pct, state.current, state.total,
+               state.path
+                    .as_ref()
+                    .map(|s| s.to_string_lossy().into_owned())
+                    .unwrap_or_default())
     }
 }
 
-pub fn fetch(repo: &git2::Repository, url: &str,
-             refspec: &str) -> CommandoResult<()> {
+
+pub fn fetch(url: &str, dest: &str) -> CommandoResult<git2::Repository> {
+    let path = PathBuf::from(dest);
     // Create a local anonymous remote in the repository to fetch the url
 
-    with_authentication(url, &try!(repo.config()), |f| {
-        let mut cb = git2::RemoteCallbacks::new();
-        cb.credentials(|a, b, c| f(a, b, c));
-        let mut remote = try!(repo.remote_anonymous(url.as_slice(),
-                                                    Some(refspec)));
-        try!(remote.add_fetch("refs/tags/*:refs/tags/*"));
-        remote.set_callbacks(&mut cb);
-        try!(remote.fetch(&["refs/tags/*:refs/tags/*", refspec], None, None));
-        Ok(())
-    })
+    let state = RefCell::new(State {
+        progress: None,
+        total: 0,
+        current: 0,
+        path: None,
+        newline: false,
+    });
+
+    Ok(clone(state, url, path))
 }
 
-fn human(s: &str) {
-    println!("{}", s);
+fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {
+    let mut co = CheckoutBuilder::new();
+    let mut cb = RemoteCallbacks::new();
+    let mut fo = FetchOptions::new();
+
+    cb.transfer_progress(|stats| {
+        let mut state = state.borrow_mut();
+        state.progress = Some(stats.to_owned());
+        print(&mut *state);
+        true
+    });
+
+    co.progress(|path, cur, total| {
+        let mut state = state.borrow_mut();
+        state.path = path.map(|p| p.to_path_buf());
+        state.current = cur;
+        state.total = total;
+        print(&mut *state);
+    });
+
+    cb.credentials(|a, b, c| creds());
+    fo.remote_callbacks(cb);
+
+    let repo = match git2::Repository::init(&path) {
+        Ok(repo) => repo,
+
+        Err(err) => {
+            panic!("Git Fetch failed to create repository because {}", err)
+        }
+    };
+
+
+    if PathBuf::from(&path).exists() {
+        fs::remove_dir_all(&path).unwrap();
+    }
+
+    let mut builder = RepoBuilder::new();
+    builder.fetch_options(fo).with_checkout(co);
+
+    error!("attempting to clone: {}", &url);
+    builder.clone(url, &path).unwrap()
+}
+
+fn creds() -> Result<git2::Cred, git2::Error>{
+    let home = env::home_dir().unwrap();
+    let hstr = home.to_str().unwrap();
+    let public = PathBuf::from(format!("{}/.ssh/id_rsa.pub", hstr));
+    let private = PathBuf::from(format!("{}/.ssh/id_rsa", hstr));
+
+    let k = git2::Cred::ssh_key("git", Some(&public.as_path()), &private.as_path(), None);
+    return k;
 }

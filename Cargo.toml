@@ -12,7 +12,7 @@ log = "0.3"
 env_logger = "0.3"
 lazy_static = "0.2"
 
-git2 = "*"
+git2 = "0.6.5"
 slug = "0.1.2"
 semver = "0.2.3"
 curl = "0.4.6"

@@ -1,15 +1,16 @@
 use db::Database as DB;
 
 use std;
-use std::fmt;
+use std::{fmt, fs};
 use std::env::current_dir;
 use std::path::PathBuf;
 use std::fs::{create_dir};
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
 use repository::{Repository, new_repo, attach_vault, service_repositories};
 use environment::{Environment};
-use git2::{Repository as GitRepository};
+// use git2::{Repository as GitRepository};
 use db::{preferences};
+use git;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectData {
@@ -50,9 +51,11 @@ pub fn active_project() -> Option<String> {
 pub fn create_project(name: &str, path: PathBuf) -> bool {
 
     if check_path_exists(&path) {
-        println!("Path Error: Found existing directory:\n{}",
-                 path.to_str().unwrap());
-        exit();
+        fs::remove_dir_all(&path).unwrap();
+
+        // println!("Path Error: Found existing directory:\n{}",
+        //          path.to_str().unwrap());
+        // exit();
     }
 
     if check_project_exists(name) {
@@ -119,7 +122,6 @@ fn initialize_barge(env: &Environment) -> bool {
     println!("Barge initialization @ \n{}\n", &barge_root);
 
     for p in paths.into_iter() {
-
         if !create_folder(&env.root, Some(p)) {
             exit();
         } else {
@@ -133,13 +135,13 @@ fn initialize_barge(env: &Environment) -> bool {
                     msgs.push(format!("  -  git: {}", &repo.git));
                     success = true;
 
-                    println!("Attempting to clone git repo: {}", &repo.git);
-                    let clone = match GitRepository::clone(&repo.git, &repo.path) {
+                    let repo_url = format!("{}{}", "crowdist/", repo.path.clone());
+                    let clone = match git::fetch(&repo.git, &repo.path) {
+                        Err(e) => panic!("failed to clone: {}", e),
                         Ok(r) => {
-                            msgs.push(format!(" -  cloned: {:?}", r.state()));
+                            msgs.push(format!(" -  cloned: {:?} to {:?}", &repo.git, &repo.path));
                             r
                         },
-                        Err(e) => panic!("failed to clone: {}", e),
                     };
 
                 }
@@ -177,8 +179,11 @@ fn create_folder(root: &PathBuf, subpath: Option<&str>) -> bool {
         },
     };
 
-    debug!("creating: {}", path.to_str().unwrap());
+    if path.exists() {
+        return true;
+    }
 
+    debug!("creating: {}", path.to_str().unwrap());
     match create_dir(path.clone()) {
         Ok(_) => true,
         Err(e) => {
@@ -190,4 +195,3 @@ fn create_folder(root: &PathBuf, subpath: Option<&str>) -> bool {
         }
     }
 }
-

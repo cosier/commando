@@ -38,7 +38,7 @@ error_chain! {
         }
         ProcessErrorKind(proc_err: ProcessError) {
             description(&proc_err.desc)
-display("{}", &proc_err.desc)
+                display("{}", &proc_err.desc)
         }
         HttpNot200(code: u32, url: String) {
             description("failed to get a 200 response")
