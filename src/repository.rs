@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use environment::{Environment};
 
+#[derive(Debug)]
 pub struct Repository {
     pub name: String,
     pub path: String,
@@ -12,9 +13,14 @@ const DEFAULT_REPO_BASE: &'static str = "git@github.com:";
 impl Repository {
     pub fn new(path: &str, git: &str) -> Repository {
         let env = Environment::global();
-
-        let full_path = format!("{}/{}", env.root.to_str().unwrap(), path);
         let name = path.to_string();
+        let full_path;
+
+        if path.starts_with('/') {
+            full_path = path.to_string();
+        } else {
+            full_path = format!("{}/{}", env.root.to_str().unwrap(), path);
+        }
 
         let git_full = match path.find('@') {
             Some(_) => path.to_string(),
@@ -32,10 +38,13 @@ impl Repository {
 }
 
 pub fn attach_vault(env: &Environment) -> Repository {
+    let env = Environment::global();
+
     let barge_root = env.root_str().to_string();
-    new_repo(
-        &barge_root,
-        &format!("{}/vault/{}", barge_root, env.vault))
+    let path = format!("{}/vault/{}", barge_root, env.vault.to_str());
+    let git = format!("crowdist/vault-{}", env.vault.to_str());
+
+    new_repo(&path, &git)
 }
 
 pub fn service_repositories(env: &Environment) -> Vec<Repository> {

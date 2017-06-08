@@ -1,7 +1,7 @@
 // use cursive::Cursive;
 // use cursive::views::{Dialog, TextView};
 
-use db::{Database, preferences as db_preferences};
+use db::{Database};
 use preferences::{Preferences};
 use cli;
 use clap;
@@ -15,7 +15,7 @@ impl<'a> App<'a> {
     pub fn new(name: &str) -> App {
         {
             let app = App {
-                preferences: db_preferences(),
+                preferences: Database::prefs(),
                 name: name,
             };
 

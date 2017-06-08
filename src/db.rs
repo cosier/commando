@@ -12,10 +12,6 @@ use project::ProjectData;
 
 pub const DEFAULT_CON: &str = "commando";
 
-pub fn preferences() -> Preferences {
-    Database::preferences(&mut Database::conn(DEFAULT_CON))
-}
-
 impl Database {
 
     pub fn list_projects() -> Vec<Box<ProjectData>> {
@@ -30,8 +26,12 @@ impl Database {
         vec
     }
 
+    pub fn new_project(d: ProjectData) -> bool {
+        true
+    }
+
     pub fn prefs() -> Preferences {
-        Database::preferences(&mut Database::conn(DEFAULT_CON))
+        Database::load(&mut Database::conn(DEFAULT_CON))
     }
 
     pub fn conn(name: &str) -> Store {
@@ -44,13 +44,12 @@ impl Database {
         store
     }
 
-    fn preferences(db: &mut Store) -> Preferences {
-        let mut db_file = String::from(
-            std::env::home_dir().unwrap().to_owned().to_str().unwrap());
+    pub fn save(prefs: Preferences) -> bool {
+        Database::db().save_with_id(&prefs, DEFAULT_CON).unwrap();
+        true
+    }
 
-        db_file.push_str(&format!("/.{}.json", DEFAULT_CON)[..]);
-        db.set_path(PathBuf::from(&db_file[..]));
-
+    fn load(db: &mut Store) -> Preferences {
         match db.get::<Preferences>(DEFAULT_CON) {
             Ok(d) => d,
             Err(e) => {
@@ -65,5 +64,15 @@ impl Database {
                 prefs
             }
         }
+    }
+
+    fn db() -> Store {
+        let mut db = Database::conn(DEFAULT_CON);
+        let mut db_file = String::from(
+            std::env::home_dir().unwrap().to_owned().to_str().unwrap());
+
+        db_file.push_str(&format!("/.{}.json", DEFAULT_CON)[..]);
+        db.set_path(PathBuf::from(&db_file[..]));
+        db
     }
 }

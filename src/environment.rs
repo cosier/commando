@@ -8,7 +8,7 @@ use std::time::Duration;
 use std::{mem, thread};
 
 use clap::{ArgMatches};
-use db::{Database as DB, preferences};
+use db::{Database as DB};
 
 use project::{active_project};
 
@@ -29,14 +29,19 @@ pub enum AppEnv {
 
 #[derive(Clone)]
 pub enum Vault {
-    Developer,
-    Admin
+    Development,
+    Secure
 }
 
 impl fmt::Display for Vault {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         vault_name(self);
         Ok(())
+    }
+}
+impl Vault {
+    pub fn to_str(&self) -> &str {
+        vault_name(self)
     }
 }
 
@@ -46,6 +51,7 @@ pub struct Environment {
     pub root:  PathBuf,
     pub host:  HostEnv,
     pub env:   AppEnv,
+    pub project_name:  String,
 }
 
 #[derive(Clone)]
@@ -60,12 +66,13 @@ static ONCE: Once = ONCE_INIT;
 use project::{ProjectData};
 
 pub fn initialize_environment(m: &ArgMatches) {
+    let mut project_name: String = "app".to_string();
 
     // Initialize the barge root with an order of precedence
     let mut root : PathBuf = match m.value_of("BARGE_ROOT") {
         Some(path) => PathBuf::from(make_absolute(path)),
         None => {
-            let prefs = preferences();
+            let prefs = DB::prefs();
             if let Some(active_project) = prefs.active_project {
                 let barge_root = prefs.projects.get(&active_project).unwrap().barge_root.clone();
                 PathBuf::from(barge_root)
@@ -75,29 +82,47 @@ pub fn initialize_environment(m: &ArgMatches) {
         }
     };
 
-    // Handle dynamic barge root based on new project creation
+    // Handle dynamic barge root based on new project creation and possible persistence.
     if let Some(matches) = m.subcommand_matches("projects") {
         match matches.occurrences_of("create") {
+            // BRANCH: freshness via create metaphor
             1 => {
-                let project_name = &slug::slugify(
-                    matches.value_of("create").unwrap())[..];
+                project_name = slug::slugify(matches.value_of("create").unwrap());
 
                 // update root with a new directory based on
                 // creating a new project in the current dir.
-                root = PathBuf::from(format!(
-                    "{}/{}",
+                root = PathBuf::from(format!("{}/{}",
                     std::env::current_dir().unwrap().to_str().unwrap(),
-                    project_name));
+                    &project_name[..]));
             },
-            _ => {}
+
+            // BRANCH: Attempt to load an existing active project prefs
+            _ => {
+
+            }
         }
     }
 
     let host  = HostEnv::Metal;
     let env   = AppEnv::Development;
-    let vault = Vault::Developer;
+
+    let vault = match m.value_of("vault") {
+        None => Vault::Development,
+        Some(str) => {
+            match str {
+                "dev" => Vault::Development,
+                "development" => Vault::Development,
+                "secure" => Vault::Secure,
+                &_ => {
+                    println!("valid vault options: development, secure\n");
+                    panic!(format!("Invalid vault parameter: {}", str))
+                }
+            }
+        }
+    };
 
     let env = Environment {
+        project_name: project_name,
         vault: vault,
         root: root,
         host: host,
@@ -142,7 +167,7 @@ impl Environment {
 
 fn vault_name<'a>(v: &Vault) -> &'a str {
     match v {
-        &Vault::Developer => "developer",
-        &Vault::Admin => "admin"
+        &Vault::Development => "dev",
+        &Vault::Secure => "secure"
     }
 }

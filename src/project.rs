@@ -8,8 +8,9 @@ use std::fs::{create_dir};
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
 use repository::{Repository, new_repo, attach_vault, service_repositories};
 use environment::{Environment};
+use db::{Database};
+
 // use git2::{Repository as GitRepository};
-use db::{preferences};
 use git;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -44,7 +45,7 @@ pub fn list() -> Vec<Box<ProjectData>> {
 }
 
 pub fn active_project() -> Option<String> {
-    preferences().active_project
+    DB::prefs().active_project
 }
 
 /// Creates a Project model definition and directory structure
@@ -52,10 +53,6 @@ pub fn create_project(name: &str, path: PathBuf) -> bool {
 
     if check_path_exists(&path) {
         fs::remove_dir_all(&path).unwrap();
-
-        // println!("Path Error: Found existing directory:\n{}",
-        //          path.to_str().unwrap());
-        // exit();
     }
 
     if check_project_exists(name) {
@@ -138,10 +135,7 @@ fn initialize_barge(env: &Environment) -> bool {
                     let repo_url = format!("{}{}", "crowdist/", repo.path.clone());
                     let clone = match git::fetch(&repo.git, &repo.path) {
                         Err(e) => panic!("failed to clone: {}", e),
-                        Ok(r) => {
-                            msgs.push(format!(" -  cloned: {:?} to {:?}", &repo.git, &repo.path));
-                            r
-                        },
+                        Ok(r) => r,
                     };
 
                 }
@@ -151,6 +145,7 @@ fn initialize_barge(env: &Environment) -> bool {
                 println!("\n‣ {} - ✓", p);
             } else {
                 print_red(format!("‣ {} - ✗", p));
+                println!("{:?}", &repositories);
             }
 
             for msg in msgs {
@@ -159,6 +154,19 @@ fn initialize_barge(env: &Environment) -> bool {
         }
     }
 
+    let mut prefs = Database::prefs();
+    let name = env.project_name.clone();
+
+    let project = ProjectData {
+        name: name.clone(),
+        barge_root: env.root.to_str().unwrap().to_string(),
+        vault_root: env.vault.to_str().to_string(),
+    };
+
+    prefs.projects.insert(name.clone(), project);
+    prefs.active_project = Some(name);
+
+    DB::save(prefs);
 
     print_green("\nBarge project creation done.\n".to_string());
     true

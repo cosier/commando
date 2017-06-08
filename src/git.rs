@@ -32,19 +32,11 @@ fn print(state: &mut State) {
             println!("");
             state.newline = true;
         }
-        print!("Resolving deltas {}/{}\r", stats.indexed_deltas(),
-               stats.total_deltas());
+        // print!("Resolving deltas {}/{}\r", stats.indexed_deltas(),
+        //        stats.total_deltas());
     } else {
-        print!("net {:3}% ({:4} kb, {:5}/{:5})  /  idx {:3}% ({:5}/{:5})  \
-                /  chk {:3}% ({:4}/{:4}) {}\r",
-               network_pct, kbytes, stats.received_objects(),
-               stats.total_objects(),
-               index_pct, stats.indexed_objects(), stats.total_objects(),
-               co_pct, state.current, state.total,
-               state.path
-                    .as_ref()
-                    .map(|s| s.to_string_lossy().into_owned())
-                    .unwrap_or_default())
+        print!("Loaded {:3}% ({:4} kb) {}\r",
+               network_pct, kbytes, stats.received_objects());
     }
 }
 
@@ -103,7 +95,9 @@ fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {
     let mut builder = RepoBuilder::new();
     builder.fetch_options(fo).with_checkout(co);
 
-    error!("attempting to clone: {}", &url);
+    // debug!("CLONING: {}", &url);
+    println!("\nCloning: {}", &url);
+
     builder.clone(url, &path).unwrap()
 }
 
