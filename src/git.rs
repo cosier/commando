@@ -7,7 +7,7 @@ use git2::build::{RepoBuilder, CheckoutBuilder};
 use git2::{RemoteCallbacks, Progress, FetchOptions};
 use std::env;
 
-use utils::errors::{CommandoResult, CommandoError, CommandoResultExt};
+use utils::errors::{CommandoResult};
 
 struct State {
     progress: Option<Progress<'static>>,
@@ -20,12 +20,12 @@ struct State {
 fn print(state: &mut State) {
     let stats = state.progress.as_ref().unwrap();
     let network_pct = (100 * stats.received_objects()) / stats.total_objects();
-    let index_pct = (100 * stats.indexed_objects()) / stats.total_objects();
-    let co_pct = if state.total > 0 {
-        (100 * state.current) / state.total
-    } else {
-        0
-    };
+    // let index_pct = (100 * stats.indexed_objects()) / stats.total_objects();
+    // let co_pct = if state.total > 0 {
+    //     (100 * state.current) / state.total
+    // } else {
+    //     0
+    // };
     let kbytes = stats.received_bytes() / 1024;
     if stats.received_objects() == stats.total_objects() {
         if !state.newline {
@@ -76,10 +76,10 @@ fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {
         print(&mut *state);
     });
 
-    cb.credentials(|a, b, c| creds());
+    cb.credentials(|_, _, _| creds());
     fo.remote_callbacks(cb);
 
-    let repo = match git2::Repository::init(&path) {
+    match git2::Repository::init(&path) {
         Ok(repo) => repo,
 
         Err(err) => {

@@ -4,15 +4,16 @@ use std;
 use slug;
 
 use std::sync::{Arc, Mutex, Once, ONCE_INIT};
-use std::time::Duration;
-use std::{mem, thread};
+// use std::time::Duration;
+use std::{mem};
 
 use clap::{ArgMatches};
 use db::{Database as DB};
 
-use project::{active_project};
+// use project::{active_project};
+// use project::{ProjectData};
 
-use utils::{make_absolute, if_occurred, print_help};
+use utils::{make_absolute};
 
 #[derive(Clone)]
 pub enum HostEnv {
@@ -34,7 +35,7 @@ pub enum Vault {
 }
 
 impl fmt::Display for Vault {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, _: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         vault_name(self);
         Ok(())
     }
@@ -63,8 +64,6 @@ pub struct EnvironmentSingleton {
 static mut SINGLETON: *const EnvironmentSingleton = 0 as *const EnvironmentSingleton;
 static ONCE: Once = ONCE_INIT;
 
-use project::{ProjectData};
-
 pub fn initialize_environment(m: &ArgMatches) {
     let mut project_name: String = "app".to_string();
 
@@ -82,10 +81,10 @@ pub fn initialize_environment(m: &ArgMatches) {
         }
     };
 
-    // Handle dynamic barge root based on new project creation and possible persistence.
+    // Handle dynamic barge root based on new project creation
     if let Some(matches) = m.subcommand_matches("projects") {
         match matches.occurrences_of("create") {
-            // BRANCH: freshness via create metaphor
+            // BRANCH: fresh barge
             1 => {
                 project_name = slug::slugify(matches.value_of("create").unwrap());
 

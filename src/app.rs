@@ -4,7 +4,6 @@
 use db::{Database};
 use preferences::{Preferences};
 use cli;
-use clap;
 
 pub struct App<'a> {
     name: &'a str,
@@ -24,6 +23,7 @@ impl<'a> App<'a> {
     }
 
     pub fn startup(&self)  {
+        debug!("startup: {}\n{:?}", self.name, self.preferences);
         cli::Processor::new().parse();
     }
 }

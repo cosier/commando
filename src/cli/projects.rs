@@ -1,7 +1,7 @@
 
 use std;
 use std::path::PathBuf;
-use clap::{ArgMatches, App};
+use clap::{ArgMatches};
 
 use project::{
     create_project,
@@ -9,15 +9,15 @@ use project::{
     info_project,
     purge_project,
     setup_project,
-    active_project,
+    // active_project,
 };
 
 use utils::{make_absolute, if_occurred, print_help};
-use cli::tree::build_tree as tree;
+// use cli::tree::build_tree as tree;
 use slug;
 
 pub fn parse_projects(project_id: &str, root: &ArgMatches) {
-
+    debug!("parse_projects: {}", &project_id);
 
     if let Some(matches) = root.subcommand_matches("projects") {
 

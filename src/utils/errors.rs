@@ -11,7 +11,7 @@ use git2;
 use semver;
 use serde_json;
 use term;
-use toml;
+// use toml;
 
 error_chain! {
     types {

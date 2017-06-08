@@ -1,11 +1,4 @@
 use clap::{ArgMatches};
-use db::Database as DB;
-
-use std;
-use std::path::PathBuf;
-use slug;
-
-use views::{display_as_list};
 pub const NO_PROJECT_SELECTED: &str = "cli_no_project_selected";
 
 

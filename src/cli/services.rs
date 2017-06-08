@@ -1,5 +1,5 @@
-use std;
-use std::path::PathBuf;
+// use std;
+// use std::path::PathBuf;
 use clap::{ArgMatches};
 
 use project::{
@@ -17,8 +17,8 @@ use service::{
     service_list
 };
 
-use utils::{make_absolute, exit, if_occurred, print_help};
-use cli::tree::build_tree as tree;
+use utils::{exit, if_occurred, print_help};
+// use cli::tree::build_tree as tree;
 use cli::{NO_PROJECT_SELECTED};
 
 pub fn parse_services(project_id: &str, root: &ArgMatches) {

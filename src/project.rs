@@ -1,16 +1,13 @@
 use db::Database as DB;
 
-use std;
 use std::{fmt, fs};
-use std::env::current_dir;
 use std::path::PathBuf;
 use std::fs::{create_dir};
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
-use repository::{Repository, new_repo, attach_vault, service_repositories};
+use repository::{Repository, attach_vault, service_repositories};
 use environment::{Environment};
 use db::{Database};
 
-// use git2::{Repository as GitRepository};
 use git;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -36,9 +33,6 @@ impl fmt::Display for ProjectData {
     }
 }
 
-fn assert_project_exists(name: &str) {
-}
-
 pub fn list() -> Vec<Box<ProjectData>> {
     let projects = DB::list_projects();
     projects
@@ -50,13 +44,14 @@ pub fn active_project() -> Option<String> {
 
 /// Creates a Project model definition and directory structure
 pub fn create_project(name: &str, path: PathBuf) -> bool {
+    debug!("create_project: {}", name);
 
     if check_path_exists(&path) {
         fs::remove_dir_all(&path).unwrap();
     }
 
     if check_project_exists(name) {
-        println!("Existing Project Error: Cannot create project with name:\n{}",
+        debug!("Existing Project Error: Cannot create project with name:\n{}",
                  path.to_str().unwrap());
         exit();
     }
@@ -68,18 +63,22 @@ pub fn create_project(name: &str, path: PathBuf) -> bool {
 }
 
 pub fn promote_project(name: &str) -> bool {
+    debug!("promote_project: {}", name);
     true
 }
 
 pub fn purge_project(name: &str) -> bool {
+    debug!("purge_project: {}", name);
     true
 }
 
 pub fn info_project(name: &str) -> bool {
+    debug!("info_project: {}", name);
     true
 }
 
 pub fn setup_project(name: &str) -> bool {
+    debug!("setup_project: {}", name);
     true
 }
 
@@ -87,7 +86,8 @@ pub fn setup_project(name: &str) -> bool {
 // Private
 
 fn check_project_exists(name: &str) -> bool {
-   false
+    debug!("check_project_exists: {}", name);
+    false
 }
 
 fn create_barge(env: &Environment) -> bool {
@@ -116,7 +116,7 @@ fn initialize_barge(env: &Environment) -> bool {
     }
 
     let barge_root = &env.root.to_str().unwrap();
-    println!("Barge initialization @ \n{}\n", &barge_root);
+    debug!("Barge initialization @ \n{}\n", &barge_root);
 
     for p in paths.into_iter() {
         if !create_folder(&env.root, Some(p)) {
@@ -132,8 +132,8 @@ fn initialize_barge(env: &Environment) -> bool {
                     msgs.push(format!("  -  git: {}", &repo.git));
                     success = true;
 
-                    let repo_url = format!("{}{}", "crowdist/", repo.path.clone());
-                    let clone = match git::fetch(&repo.git, &repo.path) {
+                    // let repo_url = format!("{}{}", "crowdist/", repo.path.clone());
+                    match git::fetch(&repo.git, &repo.path) {
                         Err(e) => panic!("failed to clone: {}", e),
                         Ok(r) => r,
                     };
@@ -149,7 +149,7 @@ fn initialize_barge(env: &Environment) -> bool {
             }
 
             for msg in msgs {
-                println!("{}", msg);
+                debug!("{}", msg);
             }
         }
     }

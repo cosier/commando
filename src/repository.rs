@@ -38,8 +38,6 @@ impl Repository {
 }
 
 pub fn attach_vault(env: &Environment) -> Repository {
-    let env = Environment::global();
-
     let barge_root = env.root_str().to_string();
     let path = format!("{}/vault/{}", barge_root, env.vault.to_str());
     let git = format!("crowdist/vault-{}", env.vault.to_str());

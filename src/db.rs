@@ -26,9 +26,9 @@ impl Database {
         vec
     }
 
-    pub fn new_project(d: ProjectData) -> bool {
-        true
-    }
+    // pub fn new_project(d: ProjectData) -> bool {
+    //     true
+    // }
 
     pub fn prefs() -> Preferences {
         Database::load(&mut Database::conn(DEFAULT_CON))
