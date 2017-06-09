@@ -33,6 +33,7 @@ pub fn reset() -> termion::style::Reset {
 
 #[allow(unreachable_code)]
 pub fn exit() -> bool {
+    println!("\n");
     std::process::exit(0);
     true
 }
@@ -44,35 +45,39 @@ pub fn print_help() {
 }
 
 pub fn make_absolute(path: &str) -> String {
-    let r = path.find('/');
-    let indexed = match r {
-        Some(_) => true,
-        None => false
-    };
-
-    if indexed {
-        debug!("detected absolute path: {}", path);
-        return path.to_string();
-    } else {
-        let current = std::env::current_dir().unwrap();
-        let str : String = format!("{}/{}", current.to_str().unwrap(), path);
-        return str;
-    }
+    let current = std::env::current_dir().unwrap();
+    make_absolute_from_root(path, current.to_str().unwrap())
 }
 
-pub fn make_absolute_from_root(path: &str, root: &str) -> String {
+pub fn make_absolute_from_root(p: &str, prefix: &str) -> String {
+    let mut path = p.to_string();
     let r = path.find('/');
     let indexed = match r {
-        Some(_) => true,
+        Some(i) => i < 1,
         None => false
     };
 
+    let home = std::env::home_dir().unwrap();
+    let root = match path.find('~') {
+        None => prefix,
+        Some(i) => {
+            if i == 0 {
+                path = path.chars().map(|x| match x {
+                   '~' => '\0',
+                    _ => x
+                }).collect();
+
+                home.to_str().unwrap()
+            } else {
+                prefix
+            }
+        }
+    };
+
     if indexed {
-        debug!("detected absolute path: {}", path);
-        return path.to_string();
+        path
     } else {
-        let str : String = format!("{}/{}", root, path);
-        return str;
+        format!("{}/{}", root, path)
     }
 }
 
