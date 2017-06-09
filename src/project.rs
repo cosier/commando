@@ -4,16 +4,19 @@ use std::{fmt, fs};
 use std::path::PathBuf;
 use std::fs::{create_dir};
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
-use repository::{Repository, attach_vault, service_repositories};
-use environment::{Environment};
-use db::{Database};
 
+use repository::{Repository};
+use environment::{Environment, AppEnv, HostEnv};
+
+use db::{Database};
 use git;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProjectData {
     pub barge_root: String,
     pub vault_root: String,
+    pub env: AppEnv,
+    pub host: HostEnv,
     pub name: String,
 }
 
@@ -23,6 +26,8 @@ impl ProjectData {
             barge_root: self.barge_root.clone(),
             vault_root: self.vault_root.clone(),
             name: self.name.clone(),
+            env: self.env.clone(),
+            host: self.host.clone()
         }
     }
 }
@@ -82,6 +87,19 @@ pub fn setup_project(name: &str) -> bool {
     true
 }
 
+pub fn list_projects() -> bool {
+    let p = Database::prefs().projects;
+    for (name, _) in p.iter() {
+       println!("project: {}", name);
+    }
+
+    if p.iter().len() < 1 {
+        println!("No projects found");
+    }
+
+    true
+}
+
 /////////////////////////////////////////////////
 // Private
 
@@ -96,7 +114,8 @@ fn create_barge(env: &Environment) -> bool {
 
 /// Checks sub directories for code repository setup
 fn initialize_barge(env: &Environment) -> bool {
-
+    let repositories: Vec<Repository> = Repository::load_manifest();
+    let barge_root = &env.root.to_str().unwrap();
     let paths = [
         "lib",
         "services",
@@ -104,18 +123,6 @@ fn initialize_barge(env: &Environment) -> bool {
         "vault",
     ];
 
-    let mut repositories = vec![
-        Repository::new("lib/bash", "crowdist/libbash"),
-        Repository::new("lib/lua", "crowdist/liblua"),
-        Repository::new("system/os", "crowdist/os"),
-        attach_vault(env),
-    ];
-
-    for service in service_repositories(env) {
-        repositories.push(service);
-    }
-
-    let barge_root = &env.root.to_str().unwrap();
     debug!("Barge initialization @ \n{}\n", &barge_root);
 
     for p in paths.into_iter() {
@@ -131,8 +138,6 @@ fn initialize_barge(env: &Environment) -> bool {
                 if repo.path[..].contains(&abs_path) {
                     msgs.push(format!("  -  git: {}", &repo.git));
                     success = true;
-
-                    // let repo_url = format!("{}{}", "crowdist/", repo.path.clone());
                     match git::fetch(&repo.git, &repo.path) {
                         Err(e) => panic!("failed to clone: {}", e),
                         Ok(r) => r,
@@ -161,6 +166,8 @@ fn initialize_barge(env: &Environment) -> bool {
         name: name.clone(),
         barge_root: env.root.to_str().unwrap().to_string(),
         vault_root: env.vault.to_str().to_string(),
+        host: HostEnv::Metal,
+        env: AppEnv::Development
     };
 
     prefs.projects.insert(name.clone(), project);
@@ -168,7 +175,7 @@ fn initialize_barge(env: &Environment) -> bool {
 
     DB::save(prefs);
 
-    print_green("\nBarge project creation done.\n".to_string());
+    print_green("\nBarge project created successfully.\n".to_string());
     true
 }
 

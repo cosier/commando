@@ -1,0 +1,31 @@
+vault:
+  - type: secure
+    git: crowdist/vault-secure
+
+  - type: developer
+    git: crowdist/vault-dev
+
+services:
+  - name: doorman
+    git: crowdist/doorman
+
+  - name: redis
+    git: crowdist/redis
+
+  - name: core
+    git: crowdist/core
+
+  - name: client
+    git: crowdist/client
+
+lib:
+  - name: bash
+    git: crowdist/libbash
+
+  - name: lua
+    git: crowdist/liblua
+
+system:
+  - name: os
+    git: crowdist/os
+

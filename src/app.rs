@@ -23,7 +23,7 @@ impl<'a> App<'a> {
     }
 
     pub fn startup(&self)  {
-        debug!("startup: {}\n{:?}", self.name, self.preferences);
+        debug!("{} startup {:?}", self.name, self.preferences);
         cli::Processor::new().parse();
     }
 }

@@ -1,5 +1,6 @@
-use std::path::PathBuf;
+// use std::path::PathBuf;
 use environment::{Environment};
+use utils::{make_absolute};
 
 #[derive(Debug)]
 pub struct Repository {
@@ -35,6 +36,26 @@ impl Repository {
             git: git_full,
         }
     }
+
+    pub fn load_manifest() -> Vec<Repository> {
+        let repos: Vec<Repository> = Vec::new();
+        let env = Environment::global();
+
+        let m = match env.args.occurrences_of("manifest") {
+            0 => {
+                panic!("Manifest not provided during project creation");
+            },
+            _ => {
+                let file = env.args.value_of("manifest").unwrap();
+                let abs = make_absolute(file);
+                println!("file: {}", abs);
+                file
+            }
+        };
+
+        println!("manifest: {:?}", m);
+        repos
+    }
 }
 
 pub fn attach_vault(env: &Environment) -> Repository {
@@ -45,29 +66,6 @@ pub fn attach_vault(env: &Environment) -> Repository {
     new_repo(&path, &git)
 }
 
-pub fn service_repositories(env: &Environment) -> Vec<Repository> {
-    let mut repos: Vec<Repository> = Vec::new();
-    let services = ["core", "doorman", "redis", "client"];
-
-    for service in services.into_iter() {
-        repos.push(new_service_repo(&env.root, service));
-    }
-
-    repos
-}
-
 pub fn new_repo(path: &String, git: &String) -> Repository {
     Repository::new(&path[..], &git[..])
-}
-
-
-/////////////////////////////////////////////////
-// Private
-
-fn new_service_repo(root: &PathBuf, name: &str) -> Repository {
-    let root_str = root.to_str().unwrap();
-    let service_dir = format!("{}/services/{}", root_str, &name.clone());
-    let repo_addr = format!("crowdist/{}", &name.clone());
-
-    new_repo(&service_dir, &repo_addr)
 }

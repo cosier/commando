@@ -55,6 +55,12 @@ impl<'c> Tree<'c> {
                      .help("Set the vault type to be used")
                      .value_name("VAULT")
                      .takes_value(true))
+
+                .arg(Arg::with_name("manifest")
+                     .long("manifest")
+                     .help("Provide a Service manifest (yaml definitions)")
+                     .value_name("MANIFEST")
+                     .takes_value(true))
         }
 
     }

@@ -3,7 +3,7 @@ use project::{ProjectData};
 use utils::{green, red, reset};
 
 // Render a list of Projects
-pub fn display_as_list(title: &str, mut collection: Vec<Box<ProjectData>>) {
+pub fn display_as_list(title: &str, collection: Vec<Box<ProjectData>>) {
     println!("\n{}----------- {}{}",
              green(),
              title,

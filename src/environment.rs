@@ -4,31 +4,27 @@ use std;
 use slug;
 
 use std::sync::{Arc, Mutex, Once, ONCE_INIT};
-// use std::time::Duration;
 use std::{mem};
 
 use clap::{ArgMatches};
 use db::{Database as DB};
 
-// use project::{active_project};
-// use project::{ProjectData};
-
 use utils::{make_absolute};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum HostEnv {
     Cluster,
     Metal
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum AppEnv {
     Production,
     Development
 }
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Vault {
     Development,
     Secure
@@ -47,17 +43,18 @@ impl Vault {
 }
 
 #[derive(Clone)]
-pub struct Environment {
+pub struct Environment<'a> {
     pub vault: Vault,
     pub root:  PathBuf,
     pub host:  HostEnv,
     pub env:   AppEnv,
     pub project_name:  String,
+    pub args: ArgMatches<'a>
 }
 
 #[derive(Clone)]
-pub struct EnvironmentSingleton {
-    pub inner: Arc<Mutex<Environment>>,
+pub struct EnvironmentSingleton<'a> {
+    pub inner: Arc<Mutex<Environment<'a>>>,
 }
 
 // Initialize it to a null value
@@ -125,7 +122,8 @@ pub fn initialize_environment(m: &ArgMatches) {
         vault: vault,
         root: root,
         host: host,
-        env:  env
+        env:  env,
+        args: m.clone()
     };
 
     unsafe {
@@ -141,20 +139,20 @@ pub fn initialize_environment(m: &ArgMatches) {
     }
 }
 
-pub fn singleton() -> EnvironmentSingleton {
+pub fn singleton() -> EnvironmentSingleton<'static> {
     unsafe {
         // Now we give out a copy of the data that is safe to use concurrently.
         (*SINGLETON).clone()
     }
 }
 
-impl Environment {
+impl <'a>Environment<'a> {
     pub fn root_str(&self) -> &str {
         self.root.to_str().unwrap()
     }
 
-    pub fn global() -> Environment {
-        let inner : &Arc<Mutex<Environment>> = &singleton().inner;
+    pub fn global() -> Environment<'static> {
+        let inner : &Arc<Mutex<Environment<'static>>> = &singleton().inner;
         let copy = inner.lock().unwrap().clone();
         copy
     }

@@ -9,6 +9,7 @@ use project::{
     info_project,
     purge_project,
     setup_project,
+    list_projects,
     // active_project,
 };
 
@@ -49,6 +50,11 @@ pub fn parse_projects(project_id: &str, root: &ArgMatches) {
         // Promote a project
         if_occurred("promote", matches, || {
             promote_project(matches.value_of("promote").unwrap())
+        });
+
+        // Promote a project
+        if_occurred("list", matches, || {
+            list_projects()
         });
 
         // Describe a project
