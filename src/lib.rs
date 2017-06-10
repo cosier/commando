@@ -8,6 +8,7 @@
 // #[macro_use] extern crate lazy_static;
 
 extern crate serde_json;
+extern crate serde_yaml;
 
 extern crate termion;
 extern crate slug;

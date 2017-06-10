@@ -19,7 +19,7 @@ impl Database {
         let mut vec: Vec<Box<ProjectData>> = Vec::new();
 
         for (_, project) in &map {
-            let bx:Box<ProjectData> = Box::new(project.copy());
+            let bx:Box<ProjectData> = Box::new(project.clone());
             vec.push(bx);
         }
 

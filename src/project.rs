@@ -11,25 +11,14 @@ use environment::{Environment, AppEnv, HostEnv};
 use db::{Database};
 use git;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProjectData {
     pub barge_root: String,
     pub vault_root: String,
     pub env: AppEnv,
     pub host: HostEnv,
     pub name: String,
-}
-
-impl ProjectData {
-    pub fn copy (&self) -> ProjectData {
-        return ProjectData {
-            barge_root: self.barge_root.clone(),
-            vault_root: self.vault_root.clone(),
-            name: self.name.clone(),
-            env: self.env.clone(),
-            host: self.host.clone()
-        }
-    }
+    pub repos: Vec<Repository>
 }
 
 impl fmt::Display for ProjectData {
@@ -167,7 +156,8 @@ fn initialize_barge(env: &Environment) -> bool {
         barge_root: env.root.to_str().unwrap().to_string(),
         vault_root: env.vault.to_str().to_string(),
         host: HostEnv::Metal,
-        env: AppEnv::Development
+        env: AppEnv::Development,
+        repos: repositories
     };
 
     prefs.projects.insert(name.clone(), project);
