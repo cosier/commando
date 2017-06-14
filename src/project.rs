@@ -120,10 +120,10 @@ fn initialize_barge(env: &Environment) -> bool {
         } else {
             let mut success = false;
             let root = &env.root.to_str().unwrap();
-            let abs_path = make_absolute_from_root(p, root);
             let mut msgs = Vec::new();
 
             for repo in &repositories {
+                let abs_path = make_absolute_from_root(p, root);
                 if repo.path[..].contains(&abs_path) {
                     msgs.push(format!("  -  git: {}", &repo.git));
                     success = true;
@@ -131,7 +131,8 @@ fn initialize_barge(env: &Environment) -> bool {
                         Err(e) => panic!("failed to clone: {}", e),
                         Ok(r) => r,
                     };
-
+                } else {
+                    error!("mismatch: {} vs {}", repo.path, &abs_path);
                 }
             }
 

@@ -41,7 +41,10 @@ fn print(state: &mut State) {
 }
 
 
-pub fn fetch(url: &str, dest: &str) -> CommandoResult<git2::Repository> {
+pub fn fetch(url: &str, dest: &str) -> CommandoResult<bool> {
+    if PathBuf::from(format!("{}/.git", dest)).exists() {
+        return Ok(true);
+    }
     let path = PathBuf::from(dest);
     // Create a local anonymous remote in the repository to fetch the url
 
@@ -53,7 +56,8 @@ pub fn fetch(url: &str, dest: &str) -> CommandoResult<git2::Repository> {
         newline: false,
     });
 
-    Ok(clone(state, url, path))
+    clone(state, url, path);
+    Ok(true)
 }
 
 fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {

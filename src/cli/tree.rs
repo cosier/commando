@@ -56,6 +56,12 @@ impl<'c> Tree<'c> {
                      .value_name("VAULT")
                      .takes_value(true))
 
+                .arg(Arg::with_name("force")
+                     .long("force")
+                     .help("Achieve goals with force")
+                     .value_name("force"))
+                     
+
                 .arg(Arg::with_name("manifest")
                      .long("manifest")
                      .help("Provide a Service manifest (yaml definitions)")

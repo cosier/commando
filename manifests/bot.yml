@@ -1,9 +1,9 @@
 vault:
   - type: secure
-    git: crowdist/vault-secure
+    git: crowdist/vault
 
-  - type: developer
-    git: crowdist/vault-dev
+  # - type: developer
+    # git: crowdist/vault-dev
 
 services:
   - name: doorman

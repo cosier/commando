@@ -118,11 +118,11 @@ impl Repository {
 impl RepoClass {
     pub fn from_str(s: &str) -> RepoClass {
         match s {
-            "lib" =>     RepoClass::Lib,
-            "system" =>  RepoClass::System,
-            "service" => RepoClass::Service,
-            "vault" =>   RepoClass::Vault,
-            _ =>         RepoClass::Service
+            "lib" =>      RepoClass::Lib,
+            "system" =>   RepoClass::System,
+            "services" => RepoClass::Service,
+            "vault" =>    RepoClass::Vault,
+            _ =>          RepoClass::Service
         }
     }
 
@@ -130,7 +130,7 @@ impl RepoClass {
         match self {
             &RepoClass::Lib => "lib",
             &RepoClass::System => "system",
-            &RepoClass::Service => "service",
+            &RepoClass::Service => "services",
             &RepoClass::Vault => "vault"
         }.to_string()
     }
