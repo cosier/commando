@@ -50,14 +50,14 @@ pub fn make_absolute(path: &str) -> String {
 }
 
 pub fn make_absolute_from_root(p: &str, prefix: &str) -> String {
+    let home = std::env::home_dir().unwrap();
     let mut path = p.to_string();
-    let r = path.find('/');
-    let indexed = match r {
+
+    let starts_with_slash = match path.find('/') {
         Some(i) => i < 1,
         None => false
     };
 
-    let home = std::env::home_dir().unwrap();
     let root = match path.find('~') {
         None => prefix,
         Some(i) => {
@@ -74,10 +74,19 @@ pub fn make_absolute_from_root(p: &str, prefix: &str) -> String {
         }
     };
 
-    if indexed {
+    if starts_with_slash {
         path
     } else {
-        format!("{}/{}", root, path)
+        let path_starts_with_slash = match path.find('/') {
+            None => false,
+            Some(i) => i <= 1
+        };
+
+        if path_starts_with_slash {
+            format!("{}{}", root, path)
+        } else {
+            format!("{}/{}", root, path)
+        }
     }
 }
 
