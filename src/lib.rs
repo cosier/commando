@@ -9,6 +9,7 @@
 
 extern crate serde_json;
 extern crate serde_yaml;
+extern crate regex;
 
 extern crate termion;
 extern crate slug;

@@ -9,6 +9,8 @@ use termion::color;
 use clap::{ArgMatches};
 use cli::tree::{build_tree as tree};
 
+use regex::Regex;
+
 pub mod errors;
 
 pub fn green() -> termion::color::Fg<termion::color::Rgb> {
@@ -53,40 +55,21 @@ pub fn make_absolute_from_root(p: &str, prefix: &str) -> String {
     let home = std::env::home_dir().unwrap();
     let mut path = p.to_string();
 
-    let starts_with_slash = match path.find('/') {
+    let r1 = Regex::new(r"^./").unwrap();
+    let r2 = Regex::new(r"^~").unwrap();
+
+    path = r1.replace_all(&path[..], "").to_string();
+    path = r2.replace_all(&path[..], home.to_str().unwrap()).to_string();
+
+    let path_starts_with_slash = match path.find('/') {
         Some(i) => i < 1,
         None => false
     };
 
-    let root = match path.find('~') {
-        None => prefix,
-        Some(i) => {
-            if i == 0 {
-                path = path.chars().map(|x| match x {
-                   '~' => '\0',
-                    _ => x
-                }).collect();
-
-                home.to_str().unwrap()
-            } else {
-                prefix
-            }
-        }
-    };
-
-    if starts_with_slash {
+    if path_starts_with_slash {
         path
     } else {
-        let path_starts_with_slash = match path.find('/') {
-            None => false,
-            Some(i) => i <= 1
-        };
-
-        if path_starts_with_slash {
-            format!("{}{}", root, path)
-        } else {
-            format!("{}/{}", root, path)
-        }
+        format!("{}/{}", prefix, path)
     }
 }
 

@@ -7,7 +7,7 @@ use std::io::Read;
 use std::collections::{HashMap, BTreeMap};
 use serde_yaml;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum RepoClass {
     Lib, System, Vault, Service
 }
@@ -20,10 +20,10 @@ pub struct Repository {
     pub git: String,
 }
 
-const DEFAULT_REPO_BASE: &'static str = "git@github.com:";
+const DEFAULT_REPO_BASE: &'static str = "git@bitbucket.org:";
 
 impl Repository {
-    pub fn new(path: &str, git: &str, class: RepoClass) -> Repository {
+    pub fn new(path: String, git: String, class: RepoClass, name: String) -> Repository {
         let env = Environment::global();
         let name = path.to_string();
         let full_path;
@@ -50,10 +50,10 @@ impl Repository {
     }
 
     pub fn load_manifest() -> Vec<Repository> {
-        let repos: Vec<Repository> = Vec::new();
+        let mut repos: Vec<Repository> = Vec::new();
         let env = Environment::global();
 
-        let m = match env.args.occurrences_of("manifest") {
+        match env.args.occurrences_of("manifest") {
             0 => {
                 panic!("Manifest not provided during project creation");
             },
@@ -63,6 +63,7 @@ impl Repository {
 
                 if !PathBuf::from(&manifest).exists() {
                     println!("manifest file: {}", &manifest);
+                    println!("manifest file raw: {}", &file);
                     panic!("Manifest could not be located at given path");
                 }
 
@@ -75,27 +76,62 @@ impl Repository {
                 let s: BTreeMap<String, Vec<HashMap<String, String>>> =
                     serde_yaml::from_str(&contents[..]).unwrap();
 
-                for (typ, entry) in &s {
-                    println!("type: {}, entry: {:?}", typ, entry);
+                for (typ, entries) in &s {
+                    let class: RepoClass = RepoClass::from_str(&typ);
+
+                    for entry in entries {
+                        // println!("type: {}, entry: {:?}", typ, entry);
+
+                        let git = entry.get("git").unwrap();
+                        let name = match entry.get("name") {
+                            None => typ,
+                            Some(n) => n,
+                        };
+
+                        let mut dir_name = name.clone();
+
+                        if class == RepoClass::Vault {
+                            dir_name = entry.get("type").unwrap().to_string();
+                        }
+
+                        let prefix = class.to_string();
+
+                        let path = format!("{}/{}/{}", env.root.to_str().unwrap(), prefix, dir_name);
+
+                        repos.push(Repository::new(
+                            path.to_string(),
+                            git.to_string(),
+                            class.clone(),
+                            name.to_string()
+                        ));
+                    }
+
                 }
-                // println!("manifest: {:?}\n", s);
                 file
             }
         };
 
-        println!("manifest: {:?}", m);
         repos
     }
 }
 
-// pub fn attach_vault(env: &Environment) -> Repository {
-//     let barge_root = env.root_str().to_string();
-//     let path = format!("{}/vault/{}", barge_root, env.vault.to_str());
-//     let git = format!("crowdist/vault-{}", env.vault.to_str());
+impl RepoClass {
+    pub fn from_str(s: &str) -> RepoClass {
+        match s {
+            "lib" =>     RepoClass::Lib,
+            "system" =>  RepoClass::System,
+            "service" => RepoClass::Service,
+            "vault" =>   RepoClass::Vault,
+            _ =>         RepoClass::Service
+        }
+    }
 
-//     new_repo(&path, &git)
-// }
-
-// pub fn new_repo(path: &String, git: &String) -> Repository {
-//     Repository::new(&path[..], &git[..])
-// }
+    pub fn to_string(&self) -> String {
+        match self {
+            &RepoClass::Lib => "lib",
+            &RepoClass::System => "system",
+            &RepoClass::Service => "service",
+            &RepoClass::Vault => "vault"
+        }.to_string()
+    }
+}
