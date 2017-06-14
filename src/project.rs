@@ -132,7 +132,7 @@ fn initialize_barge(env: &Environment) -> bool {
                         Ok(r) => r,
                     };
                 } else {
-                    error!("mismatch: {} vs {}", repo.path, &abs_path);
+                    // error!("mismatch: {} vs {}", repo.path, &abs_path);
                 }
             }
 
@@ -140,7 +140,7 @@ fn initialize_barge(env: &Environment) -> bool {
                 println!("\n‣ {} - ✓", p);
             } else {
                 print_red(format!("‣ {} - ✗", p));
-                println!("{:?}", &repositories);
+                // println!("{:?}", &repositories);
             }
 
             for msg in msgs {

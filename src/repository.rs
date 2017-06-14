@@ -25,7 +25,7 @@ const DEFAULT_REPO_BASE: &'static str = "git@bitbucket.org:";
 impl Repository {
     pub fn new(path: String, git: String, class: RepoClass, name: String) -> Repository {
         let env = Environment::global();
-        let name = path.to_string();
+        // let name = path.to_string();
         let full_path;
 
         if path.starts_with('/') {
