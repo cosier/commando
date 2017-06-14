@@ -63,11 +63,16 @@ static ONCE: Once = ONCE_INIT;
 
 pub fn initialize_environment(m: &ArgMatches) {
     let mut project_name: String = "app".to_string();
+    let mut root_is_explicit = false;
 
     // Initialize the barge root with an order of precedence
-    let mut root : PathBuf = match m.value_of("BARGE_ROOT") {
-        Some(path) => PathBuf::from(make_absolute(path)),
-        None => {
+    let mut root : PathBuf = match m.occurrences_of("barge-root") {
+        1 => {
+            let path = m.value_of("barge-root").unwrap();
+            root_is_explicit = true;
+            PathBuf::from(make_absolute(path))
+        },
+        _ => {
             let prefs = DB::prefs();
             if let Some(active_project) = prefs.active_project {
                 let barge_root = prefs.projects.get(&active_project).unwrap().barge_root.clone();
@@ -87,9 +92,11 @@ pub fn initialize_environment(m: &ArgMatches) {
 
                 // update root with a new directory based on
                 // creating a new project in the current dir.
-                root = PathBuf::from(format!("{}/{}",
-                    std::env::current_dir().unwrap().to_str().unwrap(),
-                    &project_name[..]));
+                if !root_is_explicit {
+                    root = PathBuf::from(format!("{}/{}",
+                                                 std::env::current_dir().unwrap().to_str().unwrap(),
+                                                 &project_name[..]));
+                }
             },
 
             // BRANCH: Attempt to load an existing active project prefs
