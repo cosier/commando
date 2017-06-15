@@ -9,7 +9,7 @@ use commando::app::{App};
 fn app() {
     println!("\n");
     env_logger::init().unwrap();
-    App::new("commando").startup();
+    App::new().startup();
 }
 
 fn main() { app(); }

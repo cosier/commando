@@ -60,7 +60,7 @@ impl<'c> Tree<'c> {
                      .long("force")
                      .help("Achieve goals with force")
                      .value_name("force"))
-                     
+
 
                 .arg(Arg::with_name("manifest")
                      .long("manifest")

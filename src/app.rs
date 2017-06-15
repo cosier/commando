@@ -5,17 +5,15 @@ use db::{Database};
 use preferences::{Preferences};
 use cli;
 
-pub struct App<'a> {
-    name: &'a str,
+pub struct App {
     preferences: Preferences,
 }
 
-impl<'a> App<'a> {
-    pub fn new(name: &str) -> App {
+impl App {
+    pub fn new() -> App {
         {
             let app = App {
                 preferences: Database::prefs(),
-                name: name,
             };
 
             return app;
@@ -23,7 +21,7 @@ impl<'a> App<'a> {
     }
 
     pub fn startup(&self)  {
-        debug!("{} startup {:?}", self.name, self.preferences);
+        debug!("startup {:?}", self.preferences);
         cli::Processor::new().parse();
     }
 }
