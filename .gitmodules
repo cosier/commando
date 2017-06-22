@@ -7,3 +7,6 @@
 [submodule "lib/clap-rs"]
 	path = lib/clap-rs
 	url = https://github.com/kbknapp/clap-rs.git
+[submodule "lib/jsondb"]
+	path = lib/jsondb
+	url = git@github.com:cosier/jsondb-rs
