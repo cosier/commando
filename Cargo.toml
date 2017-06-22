@@ -26,7 +26,7 @@ clap = "*"
 termion = "*"
 
 cursive = { git = "https://github.com/gyscos/Cursive" }
-jsondb = { path = "./lib/jsondb" }
+jsondb = { git = "https://github.com/cosier/jsondb-rs" }
 
 serde = "0.9"
 serde_derive = "0.9"
