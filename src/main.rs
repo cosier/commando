@@ -4,17 +4,9 @@
 extern crate env_logger;
 extern crate commando;
 
-use commando::app::App;
-
-fn app() {
-    println!("\n");
-    env_logger::init().unwrap();
-    App::new().startup();
-}
+use commando::cli;
 
 fn main() {
-    app();
+    env_logger::init().unwrap();
+    cli::Processor::new().parse();
 }
-
-// #[test]
-// fn test() { app(); }

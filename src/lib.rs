@@ -33,12 +33,11 @@ extern crate rustc_serialize;
 
 pub mod views;
 pub mod utils;
-pub mod app;
 pub mod project;
 pub mod service;
 pub mod repository;
 pub mod environment;
 pub mod preferences;
+pub mod persistence;
 pub mod cli;
-pub mod db;
 pub mod git;

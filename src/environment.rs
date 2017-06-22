@@ -1,14 +1,12 @@
-use std::path::PathBuf;
-use std::fmt;
-use std;
-use slug;
 
 use std::sync::{Arc, Mutex, Once, ONCE_INIT};
-use std::mem;
+use std::path::PathBuf;
+use std::{fmt, mem};
+use std;
 
+use slug;
 use clap::ArgMatches;
-use db::Database as DB;
-
+use persistence::{Persistence};
 use utils::make_absolute;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -73,7 +71,7 @@ pub fn initialize_environment(m: &ArgMatches) {
             PathBuf::from(make_absolute(path))
         }
         _ => {
-            let prefs = DB::prefs();
+            let prefs = Persistence::new().preferences;
             if let Some(active_project) = prefs.active_project {
                 let barge_root = prefs
                     .projects

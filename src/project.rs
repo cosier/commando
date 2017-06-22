@@ -1,14 +1,13 @@
-use db::Database as DB;
-
 use std::{fmt, fs};
 use std::path::PathBuf;
 use std::fs::create_dir;
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
+use std::iter::IntoIterator;
 
 use repository::Repository;
 use environment::{Environment, AppEnv, HostEnv};
 
-use db::Database;
+use persistence::{Persistence};
 use git;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -28,12 +27,11 @@ impl fmt::Display for ProjectData {
 }
 
 pub fn list() -> Vec<Box<ProjectData>> {
-    let projects = DB::list_projects();
-    projects
+    Persistence::new().projects()
 }
 
 pub fn active_project() -> Option<String> {
-    DB::prefs().active_project
+    Persistence::new().preferences.active_project
 }
 
 /// Creates a Project model definition and directory structure
@@ -78,12 +76,14 @@ pub fn setup_project(name: &str) -> bool {
 }
 
 pub fn list_projects() -> bool {
-    let p = Database::prefs().projects;
-    for (name, _) in p.iter() {
+    let p = Persistence::new();
+    let pros = p.preferences.projects;
+
+    for (name, _) in pros {
         println!("project: {}", name);
     }
 
-    if p.iter().len() < 1 {
+    if pros.into_iter().len() < 1 {
         println!("No projects found");
     }
 
@@ -145,7 +145,8 @@ fn initialize_barge(env: &Environment) -> bool {
         }
     }
 
-    let mut prefs = Database::prefs();
+    let persistence = Persistence::new();
+    let mut prefs = persistence.preferences;
     let name = env.project_name.clone();
 
     let project = ProjectData {
@@ -160,7 +161,7 @@ fn initialize_barge(env: &Environment) -> bool {
     prefs.projects.insert(name.clone(), project);
     prefs.active_project = Some(name);
 
-    DB::save(prefs);
+    persistence.save();
 
     print_green("\nBarge project created successfully.\n".to_string());
     true
