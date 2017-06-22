@@ -1,4 +1,4 @@
-use std::cell::{RefCell};
+use std::cell::RefCell;
 use std::path::PathBuf;
 use std::fs;
 
@@ -7,7 +7,7 @@ use git2::build::{RepoBuilder, CheckoutBuilder};
 use git2::{RemoteCallbacks, Progress, FetchOptions};
 use std::env;
 
-use utils::errors::{CommandoResult};
+use utils::errors::CommandoResult;
 
 struct State {
     progress: Option<Progress<'static>>,
@@ -32,11 +32,15 @@ fn print(state: &mut State) {
             println!("");
             state.newline = true;
         }
-        // print!("Resolving deltas {}/{}\r", stats.indexed_deltas(),
-        //        stats.total_deltas());
+    // print!("Resolving deltas {}/{}\r", stats.indexed_deltas(),
+    //        stats.total_deltas());
     } else {
-        print!("Loaded {:3}% ({:4} kb) {}\r",
-               network_pct, kbytes, stats.received_objects());
+        print!(
+            "Loaded {:3}% ({:4} kb) {}\r",
+            network_pct,
+            kbytes,
+            stats.received_objects()
+        );
     }
 }
 
@@ -86,9 +90,7 @@ fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {
     match git2::Repository::init(&path) {
         Ok(repo) => repo,
 
-        Err(err) => {
-            panic!("Git Fetch failed to create repository because {}", err)
-        }
+        Err(err) => panic!("Git Fetch failed to create repository because {}", err),
     };
 
 
@@ -105,7 +107,7 @@ fn clone(state: RefCell<State>, url: &str, path: PathBuf) -> git2::Repository {
     builder.clone(url, &path).unwrap()
 }
 
-fn creds() -> Result<git2::Cred, git2::Error>{
+fn creds() -> Result<git2::Cred, git2::Error> {
     let home = env::home_dir().unwrap();
     let hstr = home.to_str().unwrap();
     let public = PathBuf::from(format!("{}/.ssh/id_rsa.pub", hstr));

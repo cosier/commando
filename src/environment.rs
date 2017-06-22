@@ -4,30 +4,30 @@ use std;
 use slug;
 
 use std::sync::{Arc, Mutex, Once, ONCE_INIT};
-use std::{mem};
+use std::mem;
 
-use clap::{ArgMatches};
-use db::{Database as DB};
+use clap::ArgMatches;
+use db::Database as DB;
 
-use utils::{make_absolute};
+use utils::make_absolute;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum HostEnv {
     Cluster,
-    Metal
+    Metal,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum AppEnv {
     Production,
-    Development
+    Development,
 }
 
 
 #[derive(Clone, Debug)]
 pub enum Vault {
     Development,
-    Secure
+    Secure,
 }
 
 impl fmt::Display for Vault {
@@ -45,11 +45,11 @@ impl Vault {
 #[derive(Clone)]
 pub struct Environment<'a> {
     pub vault: Vault,
-    pub root:  PathBuf,
-    pub host:  HostEnv,
-    pub env:   AppEnv,
-    pub project_name:  String,
-    pub args: ArgMatches<'a>
+    pub root: PathBuf,
+    pub host: HostEnv,
+    pub env: AppEnv,
+    pub project_name: String,
+    pub args: ArgMatches<'a>,
 }
 
 #[derive(Clone)]
@@ -66,16 +66,21 @@ pub fn initialize_environment(m: &ArgMatches) {
     let mut root_is_explicit = false;
 
     // Initialize the barge root with an order of precedence
-    let mut root : PathBuf = match m.occurrences_of("barge-root") {
+    let mut root: PathBuf = match m.occurrences_of("barge-root") {
         1 => {
             let path = m.value_of("barge-root").unwrap();
             root_is_explicit = true;
             PathBuf::from(make_absolute(path))
-        },
+        }
         _ => {
             let prefs = DB::prefs();
             if let Some(active_project) = prefs.active_project {
-                let barge_root = prefs.projects.get(&active_project).unwrap().barge_root.clone();
+                let barge_root = prefs
+                    .projects
+                    .get(&active_project)
+                    .unwrap()
+                    .barge_root
+                    .clone();
                 PathBuf::from(barge_root)
             } else {
                 std::env::current_dir().unwrap()
@@ -93,21 +98,21 @@ pub fn initialize_environment(m: &ArgMatches) {
                 // update root with a new directory based on
                 // creating a new project in the current dir.
                 if !root_is_explicit {
-                    root = PathBuf::from(format!("{}/{}",
-                                                 std::env::current_dir().unwrap().to_str().unwrap(),
-                                                 &project_name[..]));
+                    root = PathBuf::from(format!(
+                        "{}/{}",
+                        std::env::current_dir().unwrap().to_str().unwrap(),
+                        &project_name[..]
+                    ));
                 }
-            },
+            }
 
             // BRANCH: Attempt to load an existing active project prefs
-            _ => {
-
-            }
+            _ => {}
         }
     }
 
-    let host  = HostEnv::Metal;
-    let env   = AppEnv::Development;
+    let host = HostEnv::Metal;
+    let env = AppEnv::Development;
 
     let vault = match m.value_of("vault") {
         None => Vault::Development,
@@ -129,16 +134,14 @@ pub fn initialize_environment(m: &ArgMatches) {
         vault: vault,
         root: root,
         host: host,
-        env:  env,
-        args: m.clone()
+        env: env,
+        args: m.clone(),
     };
 
     unsafe {
         ONCE.call_once(|| {
             // Make it
-            let singleton = EnvironmentSingleton {
-                inner: Arc::new(Mutex::new(env))
-            };
+            let singleton = EnvironmentSingleton { inner: Arc::new(Mutex::new(env)) };
 
             // Put it in the heap so it can outlive this call
             SINGLETON = mem::transmute(Box::new(singleton));
@@ -153,13 +156,13 @@ pub fn singleton() -> EnvironmentSingleton<'static> {
     }
 }
 
-impl <'a>Environment<'a> {
+impl<'a> Environment<'a> {
     pub fn root_str(&self) -> &str {
         self.root.to_str().unwrap()
     }
 
     pub fn global() -> Environment<'static> {
-        let inner : &Arc<Mutex<Environment<'static>>> = &singleton().inner;
+        let inner: &Arc<Mutex<Environment<'static>>> = &singleton().inner;
         let copy = inner.lock().unwrap().clone();
         copy
     }
@@ -172,6 +175,6 @@ impl <'a>Environment<'a> {
 fn vault_name<'a>(v: &Vault) -> &'a str {
     match v {
         &Vault::Development => "dev",
-        &Vault::Secure => "secure"
+        &Vault::Secure => "secure",
     }
 }

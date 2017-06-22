@@ -1,7 +1,9 @@
 target
+*.bk
 .#*
 commando.json
 .idea
 cmake-build*
 battles
 watchbarge
+lib/jsondb

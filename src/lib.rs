@@ -2,9 +2,12 @@
 #![cfg_attr(test, plugin(stainless))]
 #![recursion_limit = "16384"]
 
-#[macro_use] extern crate log;
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate error_chain;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate error_chain;
 // #[macro_use] extern crate lazy_static;
 
 extern crate serde_json;
@@ -16,7 +19,7 @@ extern crate slug;
 
 extern crate env_logger;
 extern crate cursive;
-extern crate jfs;
+extern crate jsondb;
 extern crate libc;
 extern crate clap;
 extern crate git2;

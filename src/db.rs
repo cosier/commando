@@ -1,10 +1,10 @@
 pub struct Database {}
 
-use jfs;
-use jfs::Store;
+use jsondb;
+use jsondb::Store;
 
-use std::path::{PathBuf};
-use std::collections::{HashMap};
+use std::path::PathBuf;
+use std::collections::HashMap;
 use std;
 
 use preferences::Preferences;
@@ -13,13 +13,12 @@ use project::ProjectData;
 pub const DEFAULT_CON: &str = "commando";
 
 impl Database {
-
     pub fn list_projects() -> Vec<Box<ProjectData>> {
         let map = Database::prefs().projects;
         let mut vec: Vec<Box<ProjectData>> = Vec::new();
 
         for (_, project) in &map {
-            let bx:Box<ProjectData> = Box::new(project.clone());
+            let bx: Box<ProjectData> = Box::new(project.clone());
             vec.push(bx);
         }
 
@@ -35,7 +34,7 @@ impl Database {
     }
 
     pub fn conn(name: &str) -> Store {
-        let mut cfg = jfs::Config::default();
+        let mut cfg = jsondb::Config::default();
         cfg.pretty = true;
         cfg.single = true;
         cfg.indent = 4;
@@ -57,7 +56,7 @@ impl Database {
 
                 let prefs = Preferences {
                     active_project: None,
-                    projects: HashMap::new()
+                    projects: HashMap::new(),
                 };
 
                 db.save_with_id(&prefs, DEFAULT_CON).unwrap();
@@ -68,8 +67,7 @@ impl Database {
 
     fn db() -> Store {
         let mut db = Database::conn(DEFAULT_CON);
-        let mut db_file = String::from(
-            std::env::home_dir().unwrap().to_owned().to_str().unwrap());
+        let mut db_file = String::from(std::env::home_dir().unwrap().to_owned().to_str().unwrap());
 
         db_file.push_str(&format!("/.{}.json", DEFAULT_CON)[..]);
         db.set_path(PathBuf::from(&db_file[..]));

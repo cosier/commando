@@ -1,5 +1,5 @@
 
-use project::{ProjectData};
+use project::ProjectData;
 use utils::{green, red, reset};
 
 // Render a list of Projects

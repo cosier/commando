@@ -4,7 +4,7 @@
 extern crate env_logger;
 extern crate commando;
 
-use commando::app::{App};
+use commando::app::App;
 
 fn app() {
     println!("\n");
@@ -12,7 +12,9 @@ fn app() {
     App::new().startup();
 }
 
-fn main() { app(); }
+fn main() {
+    app();
+}
 
 // #[test]
 // fn test() { app(); }

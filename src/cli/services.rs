@@ -1,25 +1,15 @@
 // use std;
 // use std::path::PathBuf;
-use clap::{ArgMatches};
+use clap::ArgMatches;
 
-use project::{
-    active_project,
-};
+use project::active_project;
 
-use service::{
-    service_start,
-    service_stop,
-    service_restart,
-    service_enable,
-    service_disable,
-    service_logs,
-    service_env,
-    service_list
-};
+use service::{service_start, service_stop, service_restart, service_enable, service_disable,
+              service_logs, service_env, service_list};
 
 use utils::{exit, if_occurred, print_help};
 // use cli::tree::build_tree as tree;
-use cli::{NO_PROJECT_SELECTED};
+use cli::NO_PROJECT_SELECTED;
 
 pub fn parse_services(project_id: &str, root: &ArgMatches) {
     if let Some(matches) = root.subcommand_matches("services") {
@@ -66,9 +56,7 @@ pub fn parse_services(project_id: &str, root: &ArgMatches) {
             service_env(project_id, service_name)
         });
 
-        if_occurred("list", matches, || {
-            service_list(project_id)
-        });
+        if_occurred("list", matches, || service_list(project_id));
 
         print_help();
     }

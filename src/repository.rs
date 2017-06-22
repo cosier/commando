@@ -1,6 +1,6 @@
 use std::path::PathBuf;
-use environment::{Environment};
-use utils::{make_absolute};
+use environment::Environment;
+use utils::make_absolute;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
@@ -9,7 +9,10 @@ use serde_yaml;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum RepoClass {
-    Lib, System, Vault, Service
+    Lib,
+    System,
+    Vault,
+    Service,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -36,16 +39,14 @@ impl Repository {
 
         let git_full = match path.find('@') {
             Some(_) => path.to_string(),
-            None => {
-                format!("{}{}", DEFAULT_REPO_BASE, git)
-            }
+            None => format!("{}{}", DEFAULT_REPO_BASE, git),
         };
 
         Repository {
             name: name,
             path: full_path,
             git: git_full,
-            class: class
+            class: class,
         }
     }
 
@@ -56,7 +57,7 @@ impl Repository {
         match env.args.occurrences_of("manifest") {
             0 => {
                 panic!("Manifest not provided during project creation");
-            },
+            }
             _ => {
                 let file = env.args.value_of("manifest").unwrap();
                 let manifest = make_absolute(file);
@@ -96,13 +97,14 @@ impl Repository {
 
                         let prefix = class.to_string();
 
-                        let path = format!("{}/{}/{}", env.root.to_str().unwrap(), prefix, dir_name);
+                        let path =
+                            format!("{}/{}/{}", env.root.to_str().unwrap(), prefix, dir_name);
 
                         repos.push(Repository::new(
                             path.to_string(),
                             git.to_string(),
                             class.clone(),
-                            name.to_string()
+                            name.to_string(),
                         ));
                     }
 
@@ -118,11 +120,11 @@ impl Repository {
 impl RepoClass {
     pub fn from_str(s: &str) -> RepoClass {
         match s {
-            "lib" =>      RepoClass::Lib,
-            "system" =>   RepoClass::System,
+            "lib" => RepoClass::Lib,
+            "system" => RepoClass::System,
             "services" => RepoClass::Service,
-            "vault" =>    RepoClass::Vault,
-            _ =>          RepoClass::Service
+            "vault" => RepoClass::Vault,
+            _ => RepoClass::Service,
         }
     }
 
@@ -131,7 +133,7 @@ impl RepoClass {
             &RepoClass::Lib => "lib",
             &RepoClass::System => "system",
             &RepoClass::Service => "services",
-            &RepoClass::Vault => "vault"
+            &RepoClass::Vault => "vault",
         }.to_string()
     }
 }

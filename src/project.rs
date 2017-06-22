@@ -2,13 +2,13 @@ use db::Database as DB;
 
 use std::{fmt, fs};
 use std::path::PathBuf;
-use std::fs::{create_dir};
+use std::fs::create_dir;
 use utils::{exit, check_path_exists, make_absolute_from_root, print_red, print_green};
 
-use repository::{Repository};
+use repository::Repository;
 use environment::{Environment, AppEnv, HostEnv};
 
-use db::{Database};
+use db::Database;
 use git;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -18,7 +18,7 @@ pub struct ProjectData {
     pub env: AppEnv,
     pub host: HostEnv,
     pub name: String,
-    pub repos: Vec<Repository>
+    pub repos: Vec<Repository>,
 }
 
 impl fmt::Display for ProjectData {
@@ -45,15 +45,16 @@ pub fn create_project(name: &str, path: PathBuf) -> bool {
     }
 
     if check_project_exists(name) {
-        debug!("Existing Project Error: Cannot create project with name:\n{}",
-                 path.to_str().unwrap());
+        debug!(
+            "Existing Project Error: Cannot create project with name:\n{}",
+            path.to_str().unwrap()
+        );
         exit();
     }
 
     let env = Environment::global();
 
-    create_barge(&env) &&
-        initialize_barge(&env)
+    create_barge(&env) && initialize_barge(&env)
 }
 
 pub fn promote_project(name: &str) -> bool {
@@ -79,7 +80,7 @@ pub fn setup_project(name: &str) -> bool {
 pub fn list_projects() -> bool {
     let p = Database::prefs().projects;
     for (name, _) in p.iter() {
-       println!("project: {}", name);
+        println!("project: {}", name);
     }
 
     if p.iter().len() < 1 {
@@ -105,12 +106,7 @@ fn create_barge(env: &Environment) -> bool {
 fn initialize_barge(env: &Environment) -> bool {
     let repositories: Vec<Repository> = Repository::load_manifest();
     let barge_root = &env.root.to_str().unwrap();
-    let paths = [
-        "lib",
-        "services",
-        "system",
-        "vault",
-    ];
+    let paths = ["lib", "services", "system", "vault"];
 
     debug!("Barge initialization @ \n{}\n", &barge_root);
 
@@ -158,7 +154,7 @@ fn initialize_barge(env: &Environment) -> bool {
         vault_root: env.vault.to_str().to_string(),
         host: HostEnv::Metal,
         env: AppEnv::Development,
-        repos: repositories
+        repos: repositories,
     };
 
     prefs.projects.insert(name.clone(), project);
@@ -175,14 +171,11 @@ fn create_folder(root: &PathBuf, subpath: Option<&str>) -> bool {
     let path: PathBuf = match subpath {
         None => root.clone(),
         Some(p) => {
-            let combo: PathBuf = PathBuf::from(
-                format!("{}/{}",
-                        root.to_str().unwrap(),
-                        p));
+            let combo: PathBuf = PathBuf::from(format!("{}/{}", root.to_str().unwrap(), p));
 
             combo.clone()
 
-        },
+        }
     };
 
     if path.exists() {
@@ -193,9 +186,11 @@ fn create_folder(root: &PathBuf, subpath: Option<&str>) -> bool {
     match create_dir(path.clone()) {
         Ok(_) => true,
         Err(e) => {
-            error!("Could not create directory: {}\n because {}",
-                   path.to_str().unwrap(),
-                   e);
+            error!(
+                "Could not create directory: {}\n because {}",
+                path.to_str().unwrap(),
+                e
+            );
             exit();
             false
         }

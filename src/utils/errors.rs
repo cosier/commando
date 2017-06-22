@@ -68,7 +68,7 @@ impl CommandoError {
             &CommandoErrorKind::ParseBool(_) |
             &CommandoErrorKind::Parse(_) |
             &CommandoErrorKind::Git(_) |
-            &CommandoErrorKind::Internal(_) => false
+            &CommandoErrorKind::Internal(_) => false,
         }
     }
 }
@@ -91,13 +91,14 @@ pub type CliResult = Result<(), CliError>;
 pub struct CliError {
     pub error: Option<CommandoError>,
     pub unknown: bool,
-    pub exit_code: i32
+    pub exit_code: i32,
 }
 
 impl Error for CliError {
     fn description(&self) -> &str {
-        self.error.as_ref().map(|e| e.description())
-            .unwrap_or("unknown cli error")
+        self.error.as_ref().map(|e| e.description()).unwrap_or(
+            "unknown cli error",
+        )
     }
 
     fn cause(&self) -> Option<&Error> {
@@ -118,11 +119,19 @@ impl fmt::Display for CliError {
 impl CliError {
     pub fn new(error: CommandoError, code: i32) -> CliError {
         let human = &error.is_human();
-        CliError { error: Some(error), exit_code: code, unknown: !human }
+        CliError {
+            error: Some(error),
+            exit_code: code,
+            unknown: !human,
+        }
     }
 
     pub fn code(code: i32) -> CliError {
-        CliError { error: None, exit_code: code, unknown: false }
+        CliError {
+            error: None,
+            exit_code: code,
+            unknown: false,
+        }
     }
 }
 
@@ -136,10 +145,11 @@ impl From<CommandoError> for CliError {
 // =============================================================================
 // Construction helpers
 
-pub fn process_error(msg: &str,
-                     status: Option<&ExitStatus>,
-                     output: Option<&Output>) -> ProcessError
-{
+pub fn process_error(
+    msg: &str,
+    status: Option<&ExitStatus>,
+    output: Option<&Output>,
+) -> ProcessError {
     let exit = match status {
         Some(s) => status_to_string(s),
         None => "never executed".to_string(),

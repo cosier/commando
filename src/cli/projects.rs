@@ -1,17 +1,10 @@
 
 use std;
 use std::path::PathBuf;
-use clap::{ArgMatches};
+use clap::ArgMatches;
 
-use project::{
-    create_project,
-    promote_project,
-    info_project,
-    purge_project,
-    setup_project,
-    list_projects,
-    // active_project,
-};
+use project::{create_project, promote_project, info_project, purge_project, setup_project,
+              list_projects, active_project};
 
 use utils::{make_absolute, if_occurred, print_help};
 // use cli::tree::build_tree as tree;
@@ -24,23 +17,17 @@ pub fn parse_projects(project_id: &str, root: &ArgMatches) {
 
         // Create a new project
         if_occurred("create", matches, || {
-            let project_name = &slug::slugify(
-                matches.value_of("create").unwrap())[..];
+            let project_name = &slug::slugify(matches.value_of("create").unwrap())[..];
 
-            let mut path : PathBuf = std::env::current_dir().unwrap();
+            let mut path: PathBuf = std::env::current_dir().unwrap();
 
             // Check for explicit root specified during this command
             match matches.value_of("barge-root") {
                 Some(p) => {
                     path = PathBuf::from(make_absolute(p));
                     debug!("barge-root detected: {}", path.to_str().unwrap());
-                },
-                _ => {
-                    path = PathBuf::from(format!(
-                        "{}/{}",
-                        path.to_str().unwrap(),
-                        project_name))
                 }
+                _ => path = PathBuf::from(format!("{}/{}", path.to_str().unwrap(), project_name)),
             }
 
             // Send to project interface
@@ -53,9 +40,7 @@ pub fn parse_projects(project_id: &str, root: &ArgMatches) {
         });
 
         // Promote a project
-        if_occurred("list", matches, || {
-            list_projects()
-        });
+        if_occurred("list", matches, || list_projects());
 
         // Describe a project
         if_occurred("info", matches, || {

@@ -22,12 +22,11 @@ crossbeam = "0.2"
 
 error-chain = "*"
 
-# clap = "*"
-clap = { path = "./lib/clap-rs" }
+clap = "*"
 termion = "*"
 
 cursive = { git = "https://github.com/gyscos/Cursive" }
-jfs = { path = "./lib/rust-json-file-store" }
+jsondb = { path = "./lib/jsondb" }
 
 serde = "0.9"
 serde_derive = "0.9"

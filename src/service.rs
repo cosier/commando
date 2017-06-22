@@ -1,5 +1,5 @@
 
-pub fn service_enable(project_name: &str, service_name: &str) -> bool{
+pub fn service_enable(project_name: &str, service_name: &str) -> bool {
     debug!("service_enable: {} -> {}", project_name, service_name);
     true
 }
@@ -9,7 +9,7 @@ pub fn service_disable(project_name: &str, service_name: &str) -> bool {
     true
 }
 
-pub fn service_start(project_name: &str, service_name: &str) -> bool{
+pub fn service_start(project_name: &str, service_name: &str) -> bool {
     debug!("service_start: {} -> {}", project_name, service_name);
     true
 }

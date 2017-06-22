@@ -6,8 +6,8 @@ use termion::color;
 // use termion::event::Key;
 // use termion::input::TermRead;
 
-use clap::{ArgMatches};
-use cli::tree::{build_tree as tree};
+use clap::ArgMatches;
+use cli::tree::build_tree as tree;
 
 use regex::Regex;
 
@@ -59,11 +59,12 @@ pub fn make_absolute_from_root(p: &str, prefix: &str) -> String {
     let r2 = Regex::new(r"^~").unwrap();
 
     path = r1.replace_all(&path[..], "").to_string();
-    path = r2.replace_all(&path[..], home.to_str().unwrap()).to_string();
+    path = r2.replace_all(&path[..], home.to_str().unwrap())
+        .to_string();
 
     let path_starts_with_slash = match path.find('/') {
         Some(i) => i < 1,
-        None => false
+        None => false,
     };
 
     if path_starts_with_slash {
@@ -77,13 +78,14 @@ pub fn path_with_subpath(root: &PathBuf, subdir: &str) -> String {
     format!("{}/{}", root.to_str().unwrap(), subdir)
 }
 
-pub fn if_occurred<F>(name: &str, matches: &ArgMatches, func: F) -> bool where F: Fn() -> bool {
+pub fn if_occurred<F>(name: &str, matches: &ArgMatches, func: F) -> bool
+where
+    F: Fn() -> bool,
+{
     match matches.occurrences_of(name) {
-        1 => {
-            func() && exit()
-        },
-        0 => { false },
-        _ => { false }
+        1 => func() && exit(),
+        0 => false,
+        _ => false,
     }
 }
 
